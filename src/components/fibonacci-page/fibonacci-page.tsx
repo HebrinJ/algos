@@ -11,6 +11,7 @@ export const FibonacciPage: React.FC = () => {
 
   const [input, setInput] = useState<number>(0);
   const [currentStepArray, setCurrentStepArray] = useState<Array<number>>([]);
+  const [isLoader, setLoader] = useState<boolean>(false);
 
   const cash = useRef<Record<number, number>>({ 0: 0, 1: 1 });
   const animationStep = useRef<number>(0);
@@ -38,6 +39,7 @@ export const FibonacciPage: React.FC = () => {
   const count = () => {
     cash.current = { 0: 0, 1: 1 };
     fibonacchi(input, cash.current);
+    setLoader(true);
     showAnimation();
   }
 
@@ -58,6 +60,7 @@ export const FibonacciPage: React.FC = () => {
       animationStep.current++;
     } else {
       animationStep.current = 0;
+      setLoader(false);
     }
   }
 
@@ -66,7 +69,7 @@ export const FibonacciPage: React.FC = () => {
       <div className={style.content}> 
         <div className={style.inputBox}>
           <Input max={19} onChange={event => {onChange(event.currentTarget.value)}}/>
-          <Button text='Рассчитать' onClick={count}></Button>
+          <Button text='Рассчитать' onClick={count} isLoader={isLoader}></Button>
         </div>
         <p className={style.text}>Максимальное число - 19</p>
         <div className={style.animationBox}>

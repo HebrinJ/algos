@@ -14,6 +14,7 @@ export const StringComponent: React.FC = () => {
   const [input, setInput] = useState<string>('');
   const [snapShotCollection, setSnapShotCollection] = useState<Record<number, TSnapShot<string>>>({})
   const [snapShot, setSnapShot] = useState<TSnapShot<string>>();
+  const [isLoader, setLoader] = useState<boolean>(false);
 
   const animationStep = useRef<number>(0);
 
@@ -40,20 +41,24 @@ export const StringComponent: React.FC = () => {
     let result = revert(input);
     setSnapShotCollection(result[1]);
     showAnimation();
+    setLoader(true);
   }
 
   const showAnimation = () => {
-    // Устанавливаем снимок для анимации  
+    // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
     if(snapShotCollection[animationStep.current]) {
       setSnapShot(snapShotCollection[animationStep.current]);
+    } else {
+      animationStep.current = 0;
+      setLoader(false);
     }
     
-    // Увеличиваем шаг анимации, если снимки не закончились
+    // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в 0 если что-то не так
     if(animationStep.current <= Object.keys(snapShotCollection).length) {
       animationStep.current++;
     } else {
       animationStep.current = 0;
-    }    
+    }
   }
 
   return (
@@ -61,7 +66,7 @@ export const StringComponent: React.FC = () => {
       <div className={style.content}> 
         <div className={style.inputBox}>
           <Input type='text' maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
-          <Button text='Развернуть' onClick={revertInput}></Button>
+          <Button text='Развернуть' onClick={revertInput} isLoader={isLoader}></Button>
         </div>
         <p className={style.text}>Максимум - 11 символов</p>
         <div className={style.animationBox}>
