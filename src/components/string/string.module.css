@@ -1,0 +1,23 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    max-width: 80vh;
+    margin: auto;
+}
+
+.inputBox {    
+    display: flex;
+    flex-direction: row;    
+    gap: 12px;
+}
+
+.text {
+    text-align: start;
+    margin-bottom: 120px;
+}
+
+.animationBox {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
