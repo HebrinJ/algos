@@ -11,7 +11,7 @@ export const FibonacciPage: React.FC = () => {
 
   const [input, setInput] = useState<number>(0);
   const [currentStepArray, setCurrentStepArray] = useState<Array<number>>([]);
-  
+
   const cash = useRef<Record<number, number>>({ 0: 0, 1: 1 });
   const animationStep = useRef<number>(0);
 
@@ -34,6 +34,7 @@ export const FibonacciPage: React.FC = () => {
     setInput(+origin);
   }
 
+  // Вычисляем Фибоначчи и сохраняем список промежуточных чисел в cash
   const count = () => {
     cash.current = { 0: 0, 1: 1 };
     fibonacchi(input, cash.current);
@@ -43,6 +44,7 @@ export const FibonacciPage: React.FC = () => {
   const showAnimation = () => {
     const array = []
 
+    // Добавляем значения текущего шага анимации в массив из кэша
     for (const key in cash.current) {      
       if(animationStep.current >= +key) {
         array.push(cash.current[+key]);
@@ -51,7 +53,8 @@ export const FibonacciPage: React.FC = () => {
 
     setCurrentStepArray(array);
 
-    if(animationStep.current <= Object.keys(cash.current).length) {
+    // Увеличиваем шаг анимации, если кэш не закончился
+    if(animationStep.current <= Object.keys(cash.current).length - 1) {
       animationStep.current++;
     } else {
       animationStep.current = 0;
