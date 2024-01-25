@@ -26,7 +26,7 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
         swap(origin, start, end);
 
         // Сохраняем индексы измененных элементов
-        modified.push(start, end)
+        modified.push(start, end);
 
         // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
         shot = snapShot(origin, changing.slice(), modified.slice());
