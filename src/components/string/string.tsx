@@ -60,7 +60,7 @@ export const StringComponent: React.FC = () => {
     <SolutionLayout title="Строка">
       <div className={style.content}> 
         <div className={style.inputBox}>
-          <Input maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
+          <Input type='text' maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
           <Button text='Развернуть' onClick={revertInput}></Button>
         </div>
         <p className={style.text}>Максимум - 11 символов</p>
