@@ -23,3 +23,8 @@
     flex-wrap: wrap;
     gap: 16px;
 }
+
+.circleBox {
+    display: flex;
+    flex-direction: column;
+}

@@ -74,8 +74,11 @@ export const FibonacciPage: React.FC = () => {
         <p className={style.text}>Максимальное число - 19</p>
         <div className={style.animationBox}>
           {             
-            currentStepArray?.map((item) => {
-              return <Circle letter={item.toString()} />
+            currentStepArray?.map((item, index) => {
+              return <div className={style.circleBox}>
+                <Circle letter={item.toString()} />
+                <p>{index}</p>
+              </div>              
             })
           }
         </div>
