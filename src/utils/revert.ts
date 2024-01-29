@@ -1,4 +1,5 @@
 import { TSnapShot, snapShot } from "./snapShot";
+import { swap } from './swap'
 
 // Временная сложность O(n/2), пространственная сложность O(n)
 export const revert = (str: string): [string, Record<number, TSnapShot<string>>] => {
@@ -46,10 +47,4 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
     snapShotCollection[step] = shot;
 
     return [origin.join(''), snapShotCollection];
-}
-
-const swap = (arr: Array<string>, firstIndex: number, secondIndex: number) => {
-    const tmp = arr[firstIndex];
-    arr[firstIndex] = arr[secondIndex];
-    arr[secondIndex] = tmp;
 }
