@@ -62,7 +62,7 @@ export const StackPage: React.FC = () => {
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
         <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}}/>
-        <Button text='Добавить' onClick={() => { push(input) }} />
+        <Button text='Добавить' onClick={() => { push(input) }} disabled={isChanging}/>
         <Button text='Удалить' onClick={pop} />
         <Button text='Очистить' extraClass={style.clear} onClick={onClear}/>
       </div>
