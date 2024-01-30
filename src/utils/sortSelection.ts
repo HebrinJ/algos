@@ -41,8 +41,6 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
             snapShotCollection[step] = shot;
             step++;
         }
-
-        console.log(snapShotCollection)
     }
 
     // Логика сортировки по возрастанию

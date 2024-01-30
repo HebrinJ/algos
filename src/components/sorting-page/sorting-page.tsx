@@ -5,7 +5,6 @@ import { RadioInput } from "../ui/radio-input/radio-input";
 import { Button } from "../ui/button/button";
 import { Direction } from "../../types/direction";
 import { Column } from "../ui/column/column";
-import { swap } from "../../utils/swap";
 import { sortSelection } from "../../utils/sortSelection";
 import { TSnapShot } from "../../utils/snapShot";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
@@ -15,21 +14,31 @@ import { sortBubble } from "../../utils/sortBubble";
 export const SortingPage: React.FC = () => {
   
   const [currentArray, setCurrentArray] = useState<Array<number>>([]);
+  const [sortedArray, setSortedArray] = useState<Array<number>>([]);
   const [snapShotCollection, setSnapShotCollection] = useState<Record<number, TSnapShot<number>>>({})
   const [snapShot, setSnapShot] = useState<TSnapShot<number> | null>();
   const [isLoader, setLoader] = useState<boolean>(false);
+  const [isAnimationEnd, setIsAnimationEnd] = useState<boolean>(false);
 
   // 0 - Сортировка выбором, 0 - Сортировка пузырьком 
   const [sortType, setSortType] = useState<number>(0)
 
-  const animationStep = useRef<number>(0);
+  const animationStep = useRef<number>(-1);
 
   useEffect(() => {
 
-    // Анимация не начиналась
-    if (animationStep.current === 0) {
+    // Анимация не начиналась или уже закончилась
+    if (animationStep.current === -1) {
       return;
     }
+
+    // Анимация завершена
+    if (animationStep.current > Object.keys(snapShotCollection).length) {
+      setIsAnimationEnd(true);
+      animationStep.current = -1;
+      setLoader(false);
+    }
+
     // Анимация в процессе
     else {
       setTimeout(() => {
@@ -53,35 +62,50 @@ export const SortingPage: React.FC = () => {
   const handleSortBubble = (direction: Direction) => {
 
     const result = sortBubble(currentArray, direction);
-    setCurrentArray(result[0])
     setSnapShotCollection(result[1]);
+    setSortedArray(result[0].slice())
+    //setCurrentArray(result[0])
     showAnimation();
   }
 
   const handleSortSelection = (direction: Direction) => {
 
     const result = sortSelection(currentArray, direction);
-    setCurrentArray(result[0]);
     setSnapShotCollection(result[1]);
+    setSortedArray(result[0].slice())
+    //setCurrentArray(result[0]);
     showAnimation();
   }
 
-  const showAnimation = () => {
+  const showAnimation2 = () => {
 
     // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
     if (snapShotCollection[animationStep.current]) {
       setSnapShot(snapShotCollection[animationStep.current]);
-    } else {
-      animationStep.current = 0;      
+    } else if (!snapShotCollection[animationStep.current] && !isAnimationEnd) {      
+      resetAnimation();
+      // animationStep.current = 0;
       setLoader(false);
+      // setIsAnimationEnd(true);
     }
 
-    // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в 0 если что-то не так
+    // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в -1 если что-то не так
     if (animationStep.current <= Object.keys(snapShotCollection).length) {
       animationStep.current++;
     } else {
-      animationStep.current = 0;
+      //animationStep.current = -1;
+      resetAnimation();
     }
+  }
+
+  const showAnimation = () => {
+    
+    // Устанавливаем текущий кадр для анимации
+    setSnapShot(snapShotCollection[animationStep.current]);
+
+    // Увеличиваем шаг
+    animationStep.current++
+
   }
 
   const randomArr = () => {
@@ -97,9 +121,24 @@ export const SortingPage: React.FC = () => {
     }
 
     setCurrentArray(newArray);
+    setSortedArray([]);
     setSnapShotCollection({});
     setSnapShot(null);
-    animationStep.current = 0;
+    resetAnimation();
+  }
+
+  const getArrayToRender = () => {
+    console.log('get sorted')
+    if(isAnimationEnd) {
+      return sortedArray;
+    } else {
+      return currentArray;
+    }
+  }
+
+  const resetAnimation = () => {
+    animationStep.current = -1;
+    setIsAnimationEnd(false);
   }
 
   return (
@@ -116,7 +155,8 @@ export const SortingPage: React.FC = () => {
           <Button text='Новый массив' onClick={randomArr} isLoader={isLoader}/>
         </div>
         <div className={style.imageBox}>
-          {animationStep.current && snapShot ?
+          {
+            animationStep.current !== -1 && snapShot ?
             snapShot?.object.map((item, index) => {
 
               // Определяем статус текущего элемента массива
@@ -133,8 +173,12 @@ export const SortingPage: React.FC = () => {
               }
 
               return <Column index={item} state={state} />
-            }) : currentArray.map((item) => {
-              return <Column index={item} />
+            }) : getArrayToRender().map((item) => {
+              if(isAnimationEnd) {
+                return <Column index={item} state={ElementStates.Modified}/>
+              } else {
+                return <Column index={item} state={ElementStates.Default}/>
+              }
             })}
         </div>      
     </SolutionLayout>
