@@ -83,8 +83,8 @@ export const QueuePage: React.FC = () => {
   return (
     <SolutionLayout title="Очередь">
       <div className={style.controlBox}>
-        <div>
-          <Input type='text' maxLength={4} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.inputBox} />
+        <div className={style.inputBox}>
+          <Input type='text' maxLength={4} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.input} />
           <p>Максимум - 4 символа</p>
         </div>
         <Button text='Добавить' onClick={add} disabled={!input} />

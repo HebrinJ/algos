@@ -55,13 +55,26 @@ export const StackPage: React.FC = () => {
     setCurrentStack(stack.current.getStack().slice());
   }
 
+  const buttonState = (): boolean => {
+    for (let i = 0; i < currentStack.length; i++) {
+      if(currentStack[i] !== null) {
+        return false;
+      }      
+    }
+
+    return true;
+  }
+
   return (
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
-        <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}} value={input} />
+        <div className={style.inputBox}>
+          <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
+          <p>Максимум - 4 символа</p>
+        </div>
         <Button text='Добавить' onClick={() => { push(input) }} disabled={isChanging}/>
-        <Button text='Удалить' onClick={pop} />
-        <Button text='Очистить' extraClass={style.clear} onClick={onClear}/>
+        <Button text='Удалить' onClick={pop} disabled={buttonState()}/>
+        <Button text='Очистить' extraClass={style.clear} onClick={onClear} disabled={buttonState()}/>
       </div>
       <div className={style.animationBox}>
         {
