@@ -46,7 +46,7 @@ export const StackPage: React.FC = () => {
         tmp.pop();
   
         setStack(tmp);
-      }, SHORT_DELAY_IN_MS)      
+      }, SHORT_DELAY_IN_MS);
     }
   }
 

@@ -1,6 +1,7 @@
 interface IStack<T> {
     push: (item: T) => void;
     pop: () => void;
+    getStack: () => T[];
 }
 
 export class Stack<T> implements IStack<T> {
@@ -13,4 +14,8 @@ export class Stack<T> implements IStack<T> {
     pop = (): void => {
         this.container.pop();
     };
+
+    getStack = (): T[] => {
+        return this.container;
+    }
 }

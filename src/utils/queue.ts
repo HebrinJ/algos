@@ -1,6 +1,9 @@
 interface IQueue<T> {
     enqueue: (item: T) => void;
     dequeue: () => void;
+    getAllQueue: () => (T | null)[];
+    getHead: () => number;
+    getTail: () => number;
   }
   
   export class Queue<T> implements IQueue<T> {
