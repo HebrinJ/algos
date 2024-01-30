@@ -9,8 +9,7 @@ import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
 
 export const QueuePage: React.FC = () => {
-
-  //const [queue, setQueue] = useState<Queue<number>>(new Queue<number>(7));
+  
   const [currentArray, setCurrentArray] = useState<Array<any>>([]);
   const [input, setInput] = useState<string>('')
   const [isAdd, setIsAdd] = useState<boolean>(false);
@@ -34,6 +33,8 @@ export const QueuePage: React.FC = () => {
   }, [isAdd, isRemove])
 
   const onChange = (origin: string) => {
+    if(input.length > 4) return;
+
     setInput(origin);
   }
   
@@ -77,17 +78,15 @@ export const QueuePage: React.FC = () => {
     }
 
     return true;
-    // if(currentArray.length === 0) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
   }
 
   return (
     <SolutionLayout title="Очередь">
       <div className={style.controlBox}>
-        <Input type='text' maxLength={4} onChange={event => { onChange(event.currentTarget.value) }} value={input} />
+        <div>
+          <Input type='text' maxLength={4} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.inputBox} />
+          <p>Максимум - 4 символа</p>
+        </div>
         <Button text='Добавить' onClick={add} disabled={!input} />
         <Button text='Удалить' onClick={remove} disabled={buttonState()} />
         <Button text='Очистить' extraClass={style.clear} onClick={clearQueue} disabled={buttonState()} />

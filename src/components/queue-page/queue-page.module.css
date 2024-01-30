@@ -1,7 +1,12 @@
 .controlBox {
     display: flex;
+    justify-content: center;
     gap: 12px;
-    margin: 0 96px 48px;
+    margin: 0 96px 48px;    
+}
+
+.inputBox {
+    min-width: 377px;
 }
 
 .clear {
