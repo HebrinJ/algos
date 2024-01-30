@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import style from './stack-page.module.css'
 import { Input } from "../ui/input/input";
@@ -6,12 +6,15 @@ import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
+import { Stack } from "../../utils/stack";
 
 export const StackPage: React.FC = () => {
 
-  const [stack, setStack] = useState<Array<any> | null>(null);
+  const [currentStack, setCurrentStack] = useState<Array<any>>([]);
   const [input, setInput] = useState<string>('');
   const [isChanging, setIsChanging] = useState<boolean>(false);
+
+  const stack = useRef<Stack<any>>(new Stack());
 
   useEffect(() => {
     if(isChanging) {
@@ -24,16 +27,11 @@ export const StackPage: React.FC = () => {
   const push = (item: any) => {
     if (!item) return
 
-    setIsChanging(true)
-    if (stack) {
-      const tmp = stack.slice();
-      tmp.push(item);
-      setStack(tmp);
-    } else {
-      const tmp = [item];
-      setStack(tmp);
-    }
-
+    setIsChanging(true);
+    setInput('');
+    
+    stack.current.push(item);
+    setCurrentStack(stack.current.getStack().slice());
   }
 
   const pop = () => {
@@ -42,10 +40,8 @@ export const StackPage: React.FC = () => {
       setIsChanging(true)
 
       setTimeout(() => {
-        const tmp = stack.slice();
-        tmp.pop();
-  
-        setStack(tmp);
+        stack.current.pop();
+        setCurrentStack(stack.current.getStack().slice());
       }, SHORT_DELAY_IN_MS);
     }
   }
@@ -55,21 +51,22 @@ export const StackPage: React.FC = () => {
   }
 
   const onClear = () => {
-    setStack(null);
+    stack.current = new Stack();
+    setCurrentStack(stack.current.getStack().slice());
   }
 
   return (
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
-        <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}}/>
+        <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}} value={input} />
         <Button text='Добавить' onClick={() => { push(input) }} disabled={isChanging}/>
         <Button text='Удалить' onClick={pop} />
         <Button text='Очистить' extraClass={style.clear} onClick={onClear}/>
       </div>
       <div className={style.animationBox}>
         {
-          stack?.map((item, index) => {
-            if(index === stack.length - 1 && isChanging) {
+          currentStack?.map((item, index) => {
+            if(index === currentStack.length - 1 && isChanging) {
               return <div className={style.circleBox}>
                 <p className={style.topText}>{'top'}</p>
                 <Circle letter={item} state={ElementStates.Changing}/>
@@ -77,7 +74,7 @@ export const StackPage: React.FC = () => {
               </div>              
             }
 
-            if(index === stack.length - 1) {
+            if(index === currentStack.length - 1) {
               return <div className={style.circleBox}>
                 <p className={style.topText}>{'top'}</p>
                 <Circle letter={item}/>
