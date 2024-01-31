@@ -22,7 +22,7 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
             for (let j = i + 1; j < tmpArray.length; j++) {
 
                 // Снимок каждого проверяемого элемента
-                changing = [j];
+                changing = [j, i];
                 let shot = snapShot(tmpArray, changing.slice(), modified.slice());
                 snapShotCollection[step] = shot;
                 step++;
@@ -51,7 +51,7 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
             for (let j = i + 1; j < tmpArray.length; j++) {
 
                 // Снимок каждого проверяемого элемента
-                changing = [j];
+                changing = [j, i];
                 let shot = snapShot(tmpArray, changing.slice(), modified.slice());
                 snapShotCollection[step] = shot;
                 step++;

@@ -17,8 +17,11 @@ export const SortingPage: React.FC = () => {
   const [sortedArray, setSortedArray] = useState<Array<number>>([]);
   const [snapShotCollection, setSnapShotCollection] = useState<Record<number, TSnapShot<number>>>({})
   const [snapShot, setSnapShot] = useState<TSnapShot<number> | null>();
-  const [isLoader, setLoader] = useState<boolean>(false);
+  //const [isLoader, setLoader] = useState<boolean>(false);
   const [isAnimationEnd, setIsAnimationEnd] = useState<boolean>(false);
+  const [ascLoader, setAscLoader] = useState<boolean>(false);
+  const [dscLoader, setDscLoader] = useState<boolean>(false);
+  const [disableBtn, setDisableBtn] = useState<boolean>(false);
 
   // 0 - Сортировка выбором, 0 - Сортировка пузырьком 
   const [sortType, setSortType] = useState<number>(0)
@@ -36,7 +39,10 @@ export const SortingPage: React.FC = () => {
     if (animationStep.current > Object.keys(snapShotCollection).length) {
       setIsAnimationEnd(true);
       animationStep.current = -1;
-      setLoader(false);
+      //setLoader(false);
+      setDisableBtn(false);
+      setAscLoader(false);
+      setDscLoader(false);
     }
 
     // Анимация в процессе
@@ -50,7 +56,13 @@ export const SortingPage: React.FC = () => {
 
   const sort = (direction: Direction) => {
     animationStep.current = 0;
-    setLoader(true);
+    setDisableBtn(true);
+    //setLoader(true);
+    if(direction === Direction.Ascending) {
+      setAscLoader(true);
+    } else {
+      setDscLoader(true);
+    }
 
     if (sortType === 0) {
       handleSortSelection(direction);
@@ -60,43 +72,42 @@ export const SortingPage: React.FC = () => {
   }
 
   const handleSortBubble = (direction: Direction) => {
-
+    
     const result = sortBubble(currentArray, direction);
     setSnapShotCollection(result[1]);
     setSortedArray(result[0].slice())
-    //setCurrentArray(result[0])
     showAnimation();
+    
   }
 
   const handleSortSelection = (direction: Direction) => {
-
+    
     const result = sortSelection(currentArray, direction);
     setSnapShotCollection(result[1]);
     setSortedArray(result[0].slice())
-    //setCurrentArray(result[0]);
     showAnimation();
   }
 
-  const showAnimation2 = () => {
+  // const showAnimation2 = () => {
 
-    // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
-    if (snapShotCollection[animationStep.current]) {
-      setSnapShot(snapShotCollection[animationStep.current]);
-    } else if (!snapShotCollection[animationStep.current] && !isAnimationEnd) {      
-      resetAnimation();
-      // animationStep.current = 0;
-      setLoader(false);
-      // setIsAnimationEnd(true);
-    }
+  //   // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
+  //   if (snapShotCollection[animationStep.current]) {
+  //     setSnapShot(snapShotCollection[animationStep.current]);
+  //   } else if (!snapShotCollection[animationStep.current] && !isAnimationEnd) {      
+  //     resetAnimation();
+  //     // animationStep.current = 0;
+  //     setLoader(false);
+  //     // setIsAnimationEnd(true);
+  //   }
 
-    // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в -1 если что-то не так
-    if (animationStep.current <= Object.keys(snapShotCollection).length) {
-      animationStep.current++;
-    } else {
-      //animationStep.current = -1;
-      resetAnimation();
-    }
-  }
+  //   // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в -1 если что-то не так
+  //   if (animationStep.current <= Object.keys(snapShotCollection).length) {
+  //     animationStep.current++;
+  //   } else {
+  //     //animationStep.current = -1;
+  //     resetAnimation();
+  //   }
+  // }
 
   const showAnimation = () => {
     
@@ -128,7 +139,7 @@ export const SortingPage: React.FC = () => {
   }
 
   const getArrayToRender = () => {
-    console.log('get sorted')
+    
     if(isAnimationEnd) {
       return sortedArray;
     } else {
@@ -145,14 +156,14 @@ export const SortingPage: React.FC = () => {
     <SolutionLayout title="Сортировка массива">      
         <div className={style.controlBox}>
           <div className={style.selectors}>
-            <RadioInput label='Выбор' name='sortType' onChange={() => setSortType(0)} />
-            <RadioInput label='Пузырёк' name='sortType' onChange={() => setSortType(1)} />
+            <RadioInput label='Выбор' name='sortType' onChange={() => setSortType(0)} disabled={disableBtn} checked={sortType === 0} />
+            <RadioInput label='Пузырёк' name='sortType' onChange={() => setSortType(1)} disabled={disableBtn} checked={sortType === 1} />
           </div>
           <div className={style.sort}>
-            <Button text='По возрастанию' sorting={Direction.Ascending} onClick={() => sort(Direction.Ascending)} isLoader={isLoader} />
-            <Button text='По убыванию' sorting={Direction.Descending} onClick={() => sort(Direction.Descending)} isLoader={isLoader} />
+            <Button text='По возрастанию' sorting={Direction.Ascending} onClick={() => sort(Direction.Ascending)} isLoader={ascLoader} disabled={disableBtn}/>
+            <Button text='По убыванию' sorting={Direction.Descending} onClick={() => sort(Direction.Descending)} isLoader={dscLoader} disabled={disableBtn}/>
           </div>
-          <Button text='Новый массив' onClick={randomArr} isLoader={isLoader}/>
+          <Button text='Новый массив' onClick={randomArr} disabled={disableBtn}/>
         </div>
         <div className={style.imageBox}>
           {

@@ -1,0 +1,14 @@
+.controlBox {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.animationBox {
+    display: flex;
+}
+
+.menu {
+    display: flex;
+    gap: 12px;
+}
