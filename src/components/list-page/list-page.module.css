@@ -2,13 +2,22 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    margin-bottom: 90px;
 }
 
 .animationBox {
     display: flex;
+    gap: 16px;
+    justify-content: center;
 }
 
 .menu {
     display: flex;
     gap: 12px;
+}
+
+.circleContainer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }

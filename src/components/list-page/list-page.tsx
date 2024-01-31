@@ -1,17 +1,23 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import style from './list-page.module.css'
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import { LinkedList } from "../../utils/linkedList";
 import { Circle } from "../ui/circle/circle";
+import { ArrowIcon } from "../ui/icons/arrow-icon";
 
 export const ListPage: React.FC = () => {
 
   const linkedList = useRef(new LinkedList([0, 34, 8, 1]));
 
+  const [currentArray, setCurrentArray] = useState<Array<any>>([])
   const [inputValue, setInputValue] = useState<string>();
   const [inputIndex, setInputIndex] = useState<string>();
+
+  useEffect(() => {
+    getArrayElements();
+  })
 
   const getArrayElements = () => {
     let current = linkedList.current.getHead();
@@ -22,7 +28,7 @@ export const ListPage: React.FC = () => {
       current = current.next
     }
 
-    return array;
+    setCurrentArray(array);
   }
 
   const addToTail = () => {
@@ -73,6 +79,22 @@ export const ListPage: React.FC = () => {
     setInputIndex(origin);
   }
 
+  const isHeadToRender = (index: number) => {
+    if(index === 0) {
+      return 'head';
+    } else {
+      return null;
+    }
+  }
+
+  const isTailToRender = (index: number, arrSize: number) => {
+    if(index === arrSize) {
+      return 'tail';
+    } else {
+      return null;
+    }
+  }
+
   return (
     <SolutionLayout title="Связный список">
       <div className={style.controlBox}>
@@ -92,8 +114,13 @@ export const ListPage: React.FC = () => {
       </div>
       <div className={style.animationBox}>
         {
-          getArrayElements().map((item) => {
-            return <Circle letter={item.value.toString()}/>
+          currentArray.map((item, index, array) => { 
+            const arrSize = array.length - 1;
+
+            return <div className={style.circleContainer}>
+              <Circle letter={item.value.toString()} index={index} head={isHeadToRender(index)} tail={isTailToRender(index, arrSize)}/>
+              {index !== arrSize && <ArrowIcon />}
+            </div>
           })
         }
       </div>
