@@ -1,66 +1,237 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import style from './list-page.module.css'
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import { LinkedList } from "../../utils/linkedList";
+import { LinkedList, Node } from "../../utils/linkedList";
 import { Circle } from "../ui/circle/circle";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
+import { DELAY_IN_MS } from "../../constants/delays";
+import { TSnapShot, snapShot } from "../../utils/snapShot";
+import style from './list-page.module.css';
+import { ExtraPosition, TElementData, getElementForFrame } from "../../utils/frame";
+import { ElementStates } from "../../types/element-states";
 
 export const ListPage: React.FC = () => {
 
   const linkedList = useRef(new LinkedList([0, 34, 8, 1]));
 
-  const [currentArray, setCurrentArray] = useState<Array<any>>([])
+  // Массив снимков, каждый из которых содержит массив объектов описывающих состояние каждого элемента в обрабатываемом массиве
+  const frameCollection = useRef<Array<Array<TElementData<string>>>>([]);
+
   const [inputValue, setInputValue] = useState<string>();
   const [inputIndex, setInputIndex] = useState<string>();
+  const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null)  
 
   useEffect(() => {
-    getArrayElements();
-  })
 
-  const getArrayElements = () => {
+    const currentArray = setListToArray();
+    setCurrentFrame(getDefaultFrame(currentArray));
+    
+  }, [])
+
+  const fillFramePattern = (
+    item: any,
+    index: number,
+    array: Array<any>,
+    setHead: (item: string, index: number) => TElementData<string>,
+    setTail: (item: string, index: number) => TElementData<string>,
+    setExtra: null | ((item: string, index: number, extraIndex: number) => TElementData<string>) = null,
+    extraIndex: number | undefined = undefined,
+    ) => {
+      if(index === 0) {        
+        return setHead(item, index);
+      } else if (index === array.length - 1) {
+        return setTail(item, index);
+      }
+
+      if(setExtra && extraIndex) {
+        if(extraIndex === index) {
+          return setExtra(item, index, extraIndex);
+        }
+      }
+
+      return getElementForFrame<string>(item, index);
+  }
+
+  const getDefaultFrame = (array: Array<string>): Array<TElementData<string>> => {
+    let frame: Array<TElementData<string>>;
+
+    const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+    const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
+
+    frame = array.map((item, index, array) => {
+        return fillFramePattern(item, index, array, setHead, setTail);
+    })
+
+    return frame;
+  }
+
+  const showAnimation = useCallback(() => {
+    
+    const collectionSize = frameCollection.current.length;
+    let step = 0;
+    setCurrentFrame(frameCollection.current[step])
+    
+    let timeout = setInterval(() => {
+      if(step < collectionSize) { 
+        setCurrentFrame(frameCollection.current[step])
+        step++;
+      }
+    }, DELAY_IN_MS)
+
+    setTimeout(() => {
+      clearInterval(timeout);
+      frameCollection.current = [frameCollection.current[collectionSize - 1]];
+    }, DELAY_IN_MS * collectionSize)
+
+  }, []);
+
+  const setListToArray = () => {
     let current = linkedList.current.getHead();
 
     const array = []
     while (current) {
-      array.push(current)
+      array.push(current.value.toString())
       current = current.next
     }
-
-    setCurrentArray(array);
+    
+    return array;
   }
 
   const addToTail = () => {
-    if(inputValue) {
-      linkedList.current.addToTail(+inputValue);
-    }
 
-    setInputValue('');
+    if(inputValue) {
+      let frame: Array<TElementData<string>>;
+      frameCollection.current = [];
+
+      // Первый кадр состояния
+      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head');
+      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/>, 'tail' );   
+      
+      frame = setListToArray().map((item, index, array) => {        
+        return fillFramePattern(item, index, array, setHead, setTail);
+      })
+      frameCollection.current.push(frame);
+
+      // Изменение списка
+      linkedList.current.addToTail(+inputValue);
+      const newArray = setListToArray();
+
+      // Второй кадр состояния
+      setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head');
+      setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Modified, null, 'tail' );   
+
+      frame = newArray.map((item, index, array) => {
+        return fillFramePattern(item, index, array, setHead, setTail);
+      })
+      frameCollection.current.push(frame);
+
+      // Последний кадр - значения по умолчанию
+      frame = getDefaultFrame(newArray);
+      frameCollection.current.push(frame);
+
+      // Запуск покадровой анимации
+      showAnimation();
+    }
   }
 
   const addToHead = () => {
-    if(inputValue) {      
-      linkedList.current.addToHead(+inputValue);
-    }
+    if(inputValue) {
 
-    setInputValue('');
+      let frame: Array<TElementData<string>>;
+      frameCollection.current = [];
+
+      // Первый кадр состояния
+      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/>);
+      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
+      
+      frame = setListToArray().map((item, index, array) => {        
+        return fillFramePattern(item, index, array, setHead, setTail);
+      })      
+      frameCollection.current.push(frame);
+      
+      // Изменение списка
+      linkedList.current.addToHead(+inputValue);
+      const newArray = setListToArray();
+
+      // Второй кадр состояния
+      setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Modified, 'head');
+      setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
+
+      frame = newArray.map((item, index, array) => {
+        return fillFramePattern(item, index, array, setHead, setTail);
+      })
+      frameCollection.current.push(frame);
+
+      // Последний кадр - значения по умолчанию
+      frame = getDefaultFrame(newArray);
+      frameCollection.current.push(frame);
+
+      // Запуск покадровой анимации
+      showAnimation();
+    }    
   }
 
   const removeFromHead = () => {
+
+    let frame: Array<TElementData<string>>;
+    frameCollection.current = [];
+
+    // Первый кадр состояния
+    let setHead = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, 'head', <Circle letter={item} state={ElementStates.Changing} isSmall={true}/>);
+    let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
+
+    frame = setListToArray().map((item, index, array) => {
+      return fillFramePattern(item, index, array, setHead, setTail);
+    })
+    frameCollection.current.push(frame);
+    
+    // Изменение списка
     linkedList.current.removeFromHead();
+    const newArray = setListToArray();
+
+    // Последний кадр - значения по умолчанию
+    frame = getDefaultFrame(newArray);
+    frameCollection.current.push(frame);
+
+    // Запуск покадровой анимации
+    showAnimation();
   }
 
   const removeFromTail = () => {
+
+    let frame: Array<TElementData<string>>;
+    frameCollection.current = [];
+
+    // Первый кадр состояния
+    let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+    let setTail = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );   
+
+    frame = setListToArray().map((item, index, array) => {
+      return fillFramePattern(item, index, array, setHead, setTail);
+    })
+    frameCollection.current.push(frame);
+
+    // Изменение списка
     linkedList.current.removeFromTail();
+    const newArray = setListToArray();
+
+    // Последний кадр - значения по умолчанию
+    frame = getDefaultFrame(newArray);
+    frameCollection.current.push(frame);
+
+    // Запуск покадровой анимации
+    showAnimation();    
   }
 
   const removeAtIndex = () => {
     if(inputIndex) {
+
+      
+
+
       linkedList.current.removeAt(+inputIndex);
     }
-
-    setInputIndex('');
   }
 
   const addAtIndex = () => {
@@ -68,6 +239,7 @@ export const ListPage: React.FC = () => {
       linkedList.current.insertAt(+inputValue, +inputIndex);
     }
 
+    setListToArray();
     setInputIndex('');
   }
 
@@ -77,22 +249,6 @@ export const ListPage: React.FC = () => {
 
   const onInputIndexChange = (origin: string) => {
     setInputIndex(origin);
-  }
-
-  const isHeadToRender = (index: number) => {
-    if(index === 0) {
-      return 'head';
-    } else {
-      return null;
-    }
-  }
-
-  const isTailToRender = (index: number, arrSize: number) => {
-    if(index === arrSize) {
-      return 'tail';
-    } else {
-      return null;
-    }
   }
 
   return (
@@ -113,12 +269,12 @@ export const ListPage: React.FC = () => {
         </div>
       </div>
       <div className={style.animationBox}>
-        {
-          currentArray.map((item, index, array) => { 
+        {          
+          currentFrame?.map((item, index, array) => {
             const arrSize = array.length - 1;
-
+            
             return <div className={style.circleContainer}>
-              <Circle letter={item.value.toString()} index={index} head={isHeadToRender(index)} tail={isTailToRender(index, arrSize)}/>
+              <Circle letter={item.value} index={index} head={item.upperData} tail={item.lowerData} state={item.state}/>
               {index !== arrSize && <ArrowIcon />}
             </div>
           })
