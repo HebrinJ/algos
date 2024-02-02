@@ -46,10 +46,6 @@ interface IQueue<T> {
       this.tail++;
       this.length++;
       
-      if (this.tail >= this.size) {
-        this.tail = 0;
-      }
-      
     };
   
     dequeue = () => {

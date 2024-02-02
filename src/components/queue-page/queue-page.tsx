@@ -11,15 +11,15 @@ import { SHORT_DELAY_IN_MS } from "../../constants/delays";
 export const QueuePage: React.FC = () => {
   
   const [currentArray, setCurrentArray] = useState<Array<any>>([]);
-  const [input, setInput] = useState<string>('')
+  const [input, setInput] = useState<string>('');
   const [isAdd, setIsAdd] = useState<boolean>(false);
   const [isRemove, setIsRemove] = useState<boolean>(false);
+  const [endStack, setEndStack] = useState<boolean>(false);
 
   const queue = useRef(new Queue<number>(7));
 
   useEffect(() => {
     const newArray = queue.current.getAllQueue();
-
     setCurrentArray(newArray.slice());    
   }, [])
 
@@ -39,12 +39,18 @@ export const QueuePage: React.FC = () => {
   }
   
   const add = () => {
+
     queue.current.enqueue(+input);
 
     const newArray = queue.current.getAllQueue();
     setCurrentArray(newArray);
     clearInput();
     setIsAdd(true);
+
+    if((queue.current.getTail() - 1) >= 6) {
+      console.log('Превышен индекс');
+      setEndStack(true);
+    }
   }
 
   const remove = () => {
@@ -83,11 +89,8 @@ export const QueuePage: React.FC = () => {
   return (
     <SolutionLayout title="Очередь">
       <div className={style.controlBox}>
-        <div className={style.inputBox}>
-          <Input type='text' maxLength={4} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.input} />
-          <p>Максимум - 4 символа</p>
-        </div>
-        <Button text='Добавить' onClick={add} disabled={!input} />
+        <Input type='text' maxLength={4} isLimitText={true} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.input} />
+        <Button text='Добавить' onClick={add} disabled={!input || endStack} />
         <Button text='Удалить' onClick={remove} disabled={buttonState()} />
         <Button text='Очистить' extraClass={style.clear} onClick={clearQueue} disabled={buttonState()} />
       </div>
