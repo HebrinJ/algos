@@ -47,6 +47,8 @@ export const StackPage: React.FC = () => {
   }
 
   const onChange = (origin: string) => {
+    if(input.length > 4) return;
+
     setInput(origin);
   }
 
@@ -68,10 +70,7 @@ export const StackPage: React.FC = () => {
   return (
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
-        <div className={style.inputBox}>
-          <Input type='text' maxLength={4} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
-          <p>Максимум - 4 символа</p>
-        </div>
+        <Input type='text' maxLength={4} isLimitText={true} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
         <Button text='Добавить' onClick={() => { push(input) }} disabled={isChanging}/>
         <Button text='Удалить' onClick={pop} disabled={buttonState()}/>
         <Button text='Очистить' extraClass={style.clear} onClick={onClear} disabled={buttonState()}/>
