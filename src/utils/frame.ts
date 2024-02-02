@@ -7,10 +7,6 @@ export enum ExtraPosition {
     None,
 }
 
-type TFrame<T> = {
-    array: Array<TElementData<T>>;
-}
-
 export type TElementData<T> = {    
     value: T;
     index: number;

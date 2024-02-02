@@ -9,6 +9,7 @@ import { DELAY_IN_MS } from "../../constants/delays";
 import style from './list-page.module.css';
 import { TElementData, getElementForFrame } from "../../utils/frame";
 import { ElementStates } from "../../types/element-states";
+import { BtnsTypes } from "../../utils/btnsTypes";
 
 export const ListPage: React.FC = () => {
 
@@ -17,10 +18,10 @@ export const ListPage: React.FC = () => {
   // Массив снимков, каждый из которых содержит массив объектов описывающих состояние каждого элемента в обрабатываемом массиве
   const frameCollection = useRef<Array<Array<TElementData<string>>>>([]);
 
-  const [inputValue, setInputValue] = useState<string>();
-  const [inputIndex, setInputIndex] = useState<string>();
+  const [inputValue, setInputValue] = useState<string>('');
+  const [inputIndex, setInputIndex] = useState<string>('');
   const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null);
-  const [isLoader, setIsLoader] = useState<boolean>(false);
+  const [pressedBtn, setPressedBtn] = useState<BtnsTypes>(BtnsTypes.none);
   const [isBtnDisable, setIsBtnDisable] = useState<boolean>(false);
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export const ListPage: React.FC = () => {
   }
 
   const showAnimation = useCallback(() => {
+    setIsBtnDisable(true);
     
     const collectionSize = frameCollection.current.length;
     let step = 0;
@@ -84,6 +86,8 @@ export const ListPage: React.FC = () => {
     setTimeout(() => {
       clearInterval(timeout);
       frameCollection.current = [frameCollection.current[collectionSize - 1]];
+      setIsBtnDisable(false);
+      setPressedBtn(BtnsTypes.none);
     }, DELAY_IN_MS * collectionSize)
 
   }, []);
@@ -103,6 +107,8 @@ export const ListPage: React.FC = () => {
   const addToTail = () => {
 
     if(inputValue) {
+      setPressedBtn(BtnsTypes.addToTail);
+
       let frame: Array<TElementData<string>>;
       frameCollection.current = [];
 
@@ -141,6 +147,7 @@ export const ListPage: React.FC = () => {
 
   const addToHead = () => {
     if(inputValue) {
+      setPressedBtn(BtnsTypes.addToHead);
 
       let frame: Array<TElementData<string>>;
       frameCollection.current = [];
@@ -180,6 +187,8 @@ export const ListPage: React.FC = () => {
 
   const removeFromHead = () => {
 
+    setPressedBtn(BtnsTypes.removeFromHead);
+
     let frame: Array<TElementData<string>>;
     frameCollection.current = [];
 
@@ -206,6 +215,8 @@ export const ListPage: React.FC = () => {
 
   const removeFromTail = () => {
 
+    setPressedBtn(BtnsTypes.removeFromTail);
+
     let frame: Array<TElementData<string>>;
     frameCollection.current = [];
 
@@ -231,6 +242,13 @@ export const ListPage: React.FC = () => {
   }
 
   const removeAtIndex = () => {
+
+    if((linkedList.current.getSize() - 1) > +inputIndex) {
+      console.log('Некорректный индекс');
+      return;
+    }
+
+    setPressedBtn(BtnsTypes.removeAtIndex);
 
     let frame: Array<TElementData<string>>;
     frameCollection.current = [];
@@ -275,7 +293,15 @@ export const ListPage: React.FC = () => {
     }
   }
 
-  const addAtIndex = () => {
+  const insertAtIndex = () => {
+
+    if((linkedList.current.getSize() - 1) > +inputIndex) {
+      console.log('Некорректный индекс');
+      return;
+    }
+
+    setPressedBtn(BtnsTypes.insertAtIndex);
+
     let frame: Array<TElementData<string>>;
     frameCollection.current = [];
     let currIndex = 0;
@@ -322,6 +348,8 @@ export const ListPage: React.FC = () => {
   }
 
   const onInputValueChange = (origin: string) => {
+    if(inputValue.length > 4) return;
+
     setInputValue(origin);
   }
 
@@ -329,21 +357,28 @@ export const ListPage: React.FC = () => {
     setInputIndex(origin);
   }
 
+  const setLoader = (type: BtnsTypes) => {
+    if(type === pressedBtn) {
+      return true;
+    }
+
+    return false;
+  }
+
   return (
     <SolutionLayout title="Связный список">
       <div className={style.controlBox}>
         <div className={style.menu}>
-          <Input value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value) }/>
-          <Button text='Добавить в head' onClick={addToHead} />
-          <Button text='Добавить в tail' onClick={addToTail}/>
-          <Button text='Удалить из head' onClick={removeFromHead}/>
-          <Button text='Удалить из tail' onClick={removeFromTail}/>
+          <Input maxLength={4} isLimitText={true} value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value) }/>
+          <Button text='Добавить в head' onClick={addToHead} isLoader={setLoader(BtnsTypes.addToHead)} disabled={isBtnDisable}/>
+          <Button text='Добавить в tail' onClick={addToTail} isLoader={setLoader(BtnsTypes.addToTail)} disabled={isBtnDisable}/>
+          <Button text='Удалить из head' onClick={removeFromHead} isLoader={setLoader(BtnsTypes.removeFromHead)} disabled={isBtnDisable}/>
+          <Button text='Удалить из tail' onClick={removeFromTail} isLoader={setLoader(BtnsTypes.removeFromTail)} disabled={isBtnDisable}/>
         </div>
-        <p>Максимум - 4 символа</p>
         <div className={style.menu}>
           <Input value={inputIndex} onChange={event => onInputIndexChange(event.currentTarget.value)} />
-          <Button text='Добавить по индексу' onClick={addAtIndex}/>
-          <Button text='Удалить по индексу' onClick={removeAtIndex}/>
+          <Button text='Добавить по индексу' onClick={insertAtIndex} isLoader={setLoader(BtnsTypes.insertAtIndex)} disabled={isBtnDisable}/>
+          <Button text='Удалить по индексу' onClick={removeAtIndex} isLoader={setLoader(BtnsTypes.removeAtIndex)} disabled={isBtnDisable}/>
         </div>
       </div>
       <div className={style.animationBox}>

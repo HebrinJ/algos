@@ -17,9 +17,7 @@ interface ILinkedList<T> {
     removeAt: (position: number) => void;
 
     getHead: () => Node<T> | null;
-
-    //getSize: () => number;
-    print: () => void;
+    getSize: () => number;
 }
   
 export class LinkedList<T> implements ILinkedList<T> {
@@ -120,7 +118,7 @@ export class LinkedList<T> implements ILinkedList<T> {
             curr = curr!.next;
             currIndex++;
           }
-          // добавляем элемент
+          
           prev!.next = node;
           node.next = curr;        
           curr = node;
@@ -158,36 +156,8 @@ export class LinkedList<T> implements ILinkedList<T> {
         this.size--;
       }
     }
-  
-    
-  
+
     getSize() {
       return this.size;
     }
-  
-    print() {
-      let curr = this.head;
-      let res = '';
-      while (curr) {
-        res += `${curr.value} `;
-        curr = curr.next;
-      }
-      console.log(res);
-    }
   }
-
-
-// const removeElements = (head: Node<number> | null, val: number): Node<number> | null => {
-//     let dummyHead = new Node(0); // добавим в начало пустой узел
-//     dummyHead.next = head;
-//     let curr = dummyHead;
-    
-//     while(curr.next) {
-  
-//         if(curr.next.value === val) {  // Есть совпадение значения
-//           curr.next = curr.next.next;
-//           continue;
-//         }
-      
-//       curr = curr.next;
-//     }

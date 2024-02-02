@@ -1,7 +1,7 @@
 .controlBox {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
     margin-bottom: 90px;
 }
 
