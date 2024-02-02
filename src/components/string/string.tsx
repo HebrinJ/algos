@@ -2,11 +2,12 @@ import React, { useRef, useState, useCallback } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import style from "./string.module.css"
 import { Circle } from "../ui/circle/circle";
 import { revert } from "../../utils/revert";
 import { DELAY_IN_MS } from "../../constants/delays";
 import { TElementData } from "../../utils/frame";
+import { v4 as uuidv4 } from "uuid";
+import style from "./string.module.css"
 
 export const StringComponent: React.FC = () => {
 
@@ -60,8 +61,8 @@ export const StringComponent: React.FC = () => {
         </div>
         <div className={style.animationBox}>
           {
-            currentFrame?.map((item, index, array) => {            
-              return <div className={style.circleContainer}>
+            currentFrame?.map((item, index) => {            
+              return <div key={uuidv4()} className={style.circleContainer}>
                 <Circle letter={item.value} index={index} head={item.upperData} tail={item.lowerData} state={item.state}/>
               </div>
               })

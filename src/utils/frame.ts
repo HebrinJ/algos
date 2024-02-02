@@ -34,3 +34,29 @@ export const getElementForFrame = <T>(
         extraIndex,
     }
 }
+
+export const getDefaultFrame = <T>(array: Array<T>, state: ElementStates = ElementStates.Default): Array<TElementData<T>> => {
+    let frame: Array<TElementData<T>>;
+
+    frame = array.map((item, index) => {
+        return getElementForFrame(item, index, state);
+    })
+
+    return frame;
+}
+
+export const getMultyStatesFrame = <T>(originArray: Array<T>, arrChangesIndexes: Array<number>, arrModifiedIndexes: Array<number>): Array<TElementData<T>> => {
+    let frame: Array<TElementData<T>>;
+
+    frame = originArray.map((item, index) => {
+        if(arrChangesIndexes.includes(index)) {
+            return getElementForFrame<T>(item, index, ElementStates.Changing)
+        } else if (arrModifiedIndexes.includes(index)) {
+            return getElementForFrame<T>(item, index, ElementStates.Modified)
+        }
+
+        return getElementForFrame<T>(item, index)
+    })
+
+    return frame;
+}

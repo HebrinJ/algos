@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import style from './stack-page.module.css'
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
+import { v4 as uuidv4 } from "uuid";
 import { Stack } from "../../utils/stack";
+import style from './stack-page.module.css'
 
 export const StackPage: React.FC = () => {
 
@@ -18,9 +19,13 @@ export const StackPage: React.FC = () => {
 
   useEffect(() => {
     if(isChanging) {
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         setIsChanging(false);
       }, SHORT_DELAY_IN_MS)
+
+      return () => {
+        clearTimeout(timerId);
+      };
     }
   }, [isChanging])
 
@@ -79,7 +84,7 @@ export const StackPage: React.FC = () => {
         {
           currentStack?.map((item, index) => {
             if(index === currentStack.length - 1 && isChanging) {
-              return <div className={style.circleBox}>
+              return <div key={uuidv4()} className={style.circleBox}>
                 <p className={style.topText}>{'top'}</p>
                 <Circle letter={item} state={ElementStates.Changing}/>
                 <p>{index}</p>
@@ -87,14 +92,14 @@ export const StackPage: React.FC = () => {
             }
 
             if(index === currentStack.length - 1) {
-              return <div className={style.circleBox}>
+              return <div key={uuidv4()} className={style.circleBox}>
                 <p className={style.topText}>{'top'}</p>
                 <Circle letter={item}/>
                 <p>{index}</p>
               </div> 
             }
 
-            return <div className={style.circleBox}>
+            return <div key={uuidv4()} className={style.circleBox}>
               <p className={style.topText}></p>
               <Circle letter={item}/>
               <p>{index}</p>

@@ -6,10 +6,11 @@ import { LinkedList, Node } from "../../utils/linkedList";
 import { Circle } from "../ui/circle/circle";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
 import { DELAY_IN_MS } from "../../constants/delays";
-import style from './list-page.module.css';
 import { TElementData, getElementForFrame } from "../../utils/frame";
 import { ElementStates } from "../../types/element-states";
+import { v4 as uuidv4 } from "uuid";
 import { BtnsTypes } from "../../utils/btnsTypes";
+import style from './list-page.module.css';
 
 export const ListPage: React.FC = () => {
 
@@ -243,7 +244,9 @@ export const ListPage: React.FC = () => {
 
   const removeAtIndex = () => {
 
-    if((linkedList.current.getSize() - 1) > +inputIndex) {
+    if((linkedList.current.getSize() - 1) < +inputIndex) {
+      console.log(linkedList.current.getSize() - 1)
+      console.log(inputIndex)
       console.log('Некорректный индекс');
       return;
     }
@@ -295,7 +298,7 @@ export const ListPage: React.FC = () => {
 
   const insertAtIndex = () => {
 
-    if((linkedList.current.getSize() - 1) > +inputIndex) {
+    if((linkedList.current.getSize() - 1) < +inputIndex) {
       console.log('Некорректный индекс');
       return;
     }
@@ -386,7 +389,7 @@ export const ListPage: React.FC = () => {
           currentFrame?.map((item, index, array) => {
             const arrSize = array.length - 1;
             
-            return <div className={style.circleContainer}>
+            return <div key={uuidv4()} className={style.circleContainer}>
               <Circle letter={item.value} index={index} head={item.upperData} tail={item.lowerData} state={item.state}/>
               {index !== arrSize && <ArrowIcon />}
             </div>

@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import style from './queue-page.module.css';
 import { Queue } from "../../utils/queue";
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
+import { v4 as uuidv4 } from "uuid";
+import style from './queue-page.module.css';
 
 export const QueuePage: React.FC = () => {
   
@@ -25,10 +26,14 @@ export const QueuePage: React.FC = () => {
 
   useEffect(() => {
     if(isAdd || isRemove) {
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         setIsAdd(false);
         setIsRemove(false);
       }, SHORT_DELAY_IN_MS)
+
+      return () => {
+        clearTimeout(timerId);
+      };
     }
   }, [isAdd, isRemove])
 
@@ -70,6 +75,7 @@ export const QueuePage: React.FC = () => {
     const newArray = queue.current.getAllQueue();
 
     setCurrentArray(newArray.slice());
+    setEndStack(false);
   }
 
   const clearInput = () => {
@@ -115,14 +121,14 @@ export const QueuePage: React.FC = () => {
                 state = ElementStates.Changing;
               }
               
-              return <div className={style.circleBox}>
+              return <div key={uuidv4()} className={style.circleBox}>
                 {isHead ? <p className={style.topText}>head</p> : <p className={style.topText}></p>}
                 <Circle letter={item?.toString()} state={state}/>
                 <p>{index}</p>
                 {isTail ? <p className={style.topText}>tail</p> : <p className={style.topText}></p>} 
               </div>
             } else {
-              return <div className={style.circleBox}>
+              return <div key={uuidv4()} className={style.circleBox}>
                 <p className={style.topText}></p>
                 <Circle />
                 <p>{index}</p>

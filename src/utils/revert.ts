@@ -1,9 +1,10 @@
-import { TSnapShot, snapShot } from "./snapShot";
 import { swap } from './swap'
-import { TElementData, getElementForFrame } from "./frame";
+import { TElementData, getDefaultFrame, getMultyStatesFrame } from "./frame";
 import { ElementStates } from "../types/element-states";
 
 export const revert = (str: string): [string, Array<Array<TElementData<string>>>] => {
+
+    // Массив снимков, каждый из которых содержит массив объектов описывающих состояние каждого элемента в обрабатываемом массиве
     const frameCollection: Array<Array<TElementData<string>>> = [];
     const origin = Array.from(str);
 
@@ -15,11 +16,7 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
     const modified: Array<number> = [];
 
     // Создаём первый снимок и добавляем в коллекцию
-    let frame: Array<TElementData<string>>;
-    frame = origin.map((item, index) => {
-        return getElementForFrame<string>(item, index)
-    })
-    frameCollection.push(frame);
+    frameCollection.push(getDefaultFrame(origin));
 
     // Логика реверса элементов строки
     while(start < end) {
@@ -33,17 +30,7 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
         modified.push(start, end);
 
         // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
-    
-        frame = origin.map((item, index) => {
-            if(changing.includes(index)) {
-                return getElementForFrame<string>(item, index, ElementStates.Changing)
-            } else if (modified.includes(index)) {
-                return getElementForFrame<string>(item, index, ElementStates.Modified)
-            }
-
-            return getElementForFrame<string>(item, index)
-        })
-        frameCollection.push(frame);
+        frameCollection.push(getMultyStatesFrame(origin, changing, modified))
 
         // Изменяем указатели элементов массива для следующей итерации
         start++;
@@ -51,10 +38,7 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
     }
 
     // Создаем финальный снимок, где все элементы модифицированы
-    frame = origin.map((item, index) => {
-        return getElementForFrame<string>(item, index, ElementStates.Modified)
-    })
-    frameCollection.push(frame);
+    frameCollection.push(getDefaultFrame(origin, ElementStates.Modified));
 
     return [origin.join(''), frameCollection];
 }
