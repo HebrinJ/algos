@@ -6,9 +6,8 @@ import { LinkedList, Node } from "../../utils/linkedList";
 import { Circle } from "../ui/circle/circle";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
 import { DELAY_IN_MS } from "../../constants/delays";
-import { TSnapShot, snapShot } from "../../utils/snapShot";
 import style from './list-page.module.css';
-import { ExtraPosition, TElementData, getElementForFrame } from "../../utils/frame";
+import { TElementData, getElementForFrame } from "../../utils/frame";
 import { ElementStates } from "../../types/element-states";
 
 export const ListPage: React.FC = () => {
@@ -20,7 +19,9 @@ export const ListPage: React.FC = () => {
 
   const [inputValue, setInputValue] = useState<string>();
   const [inputIndex, setInputIndex] = useState<string>();
-  const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null)  
+  const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null);
+  const [isLoader, setIsLoader] = useState<boolean>(false);
+  const [isBtnDisable, setIsBtnDisable] = useState<boolean>(false);
 
   useEffect(() => {
 
@@ -37,6 +38,7 @@ export const ListPage: React.FC = () => {
     setTail: (item: string, index: number) => TElementData<string>,
     setExtra: null | ((item: string, index: number, extraIndex: number) => TElementData<string>) = null,
     extraIndex: number | undefined = undefined,
+    saveChanges: boolean = false
     ) => {
       if(index === 0) {        
         return setHead(item, index);
@@ -44,8 +46,8 @@ export const ListPage: React.FC = () => {
         return setTail(item, index);
       }
 
-      if(setExtra && extraIndex) {
-        if(extraIndex === index) {
+      if(setExtra && extraIndex) {        
+        if(extraIndex === index || (saveChanges && extraIndex >= index)) {
           return setExtra(item, index, extraIndex);
         }
       }
@@ -132,6 +134,8 @@ export const ListPage: React.FC = () => {
 
       // Запуск покадровой анимации
       showAnimation();
+
+      setInputValue('');
     }
   }
 
@@ -169,6 +173,8 @@ export const ListPage: React.FC = () => {
 
       // Запуск покадровой анимации
       showAnimation();
+
+      setInputValue('');
     }    
   }
 
@@ -221,26 +227,98 @@ export const ListPage: React.FC = () => {
     frameCollection.current.push(frame);
 
     // Запуск покадровой анимации
-    showAnimation();    
+    showAnimation();
   }
 
   const removeAtIndex = () => {
+
+    let frame: Array<TElementData<string>>;
+    frameCollection.current = [];
+    let currIndex = 0;
+
     if(inputIndex) {
 
-      
+      // Создаём кадры передвижения по массиву
+      while(currIndex <= +inputIndex) {
+        
+        let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
+        let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+        let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing );
 
+        frame = setListToArray().map((item, index, array) => {
+          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex, true);
+        })
+        frameCollection.current.push(frame);
+
+        currIndex++;
+      }
+
+      // Кадр с изменяемым элементом
+      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+      let setExtra = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );
+
+      frame = setListToArray().map((item, index, array) => {
+        return fillFramePattern(item, index, array, setHead, setTail, setExtra, +inputIndex);
+      })
+      frameCollection.current.push(frame);      
 
       linkedList.current.removeAt(+inputIndex);
+      const newArray = setListToArray();
+
+      // Кадр с измененным массивом
+      frame = getDefaultFrame(newArray);
+      frameCollection.current.push(frame); 
+
+      showAnimation();
+      setInputIndex('');
     }
   }
 
   const addAtIndex = () => {
-    if(inputIndex && inputValue) {
-      linkedList.current.insertAt(+inputValue, +inputIndex);
-    }
+    let frame: Array<TElementData<string>>;
+    frameCollection.current = [];
+    let currIndex = 0;
 
-    setListToArray();
-    setInputIndex('');
+    if(inputIndex && inputValue) {
+
+      // Создаём кадры передвижения по массиву
+      while(currIndex <= +inputIndex) {
+        
+        let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
+        let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+        let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing );
+
+        frame = setListToArray().map((item, index, array) => {
+          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex, true);
+        })
+        frameCollection.current.push(frame);
+
+        currIndex++;
+      }
+
+      // Кадр с изменяемым элементом
+      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+      let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/>  );
+
+      frame = setListToArray().map((item, index, array) => {
+        return fillFramePattern(item, index, array, setHead, setTail, setExtra, +inputIndex);
+      })
+      frameCollection.current.push(frame); 
+
+      linkedList.current.insertAt(+inputValue, +inputIndex);
+      const newArray = setListToArray();
+
+      // Кадр с измененным массивом
+      frame = getDefaultFrame(newArray);
+      frameCollection.current.push(frame); 
+
+      showAnimation();
+
+      setInputIndex('');
+      setInputValue('');
+    }    
   }
 
   const onInputValueChange = (origin: string) => {
