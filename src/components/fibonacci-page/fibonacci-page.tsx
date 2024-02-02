@@ -32,7 +32,10 @@ export const FibonacciPage: React.FC = () => {
   }, [currentStepArray]);
 
   const onChange = (origin: string) => {
-    setInput(+origin);
+    console.log(+origin);
+    +origin <= 19 ? setInput(+origin) : setInput(19);
+    
+    if(+origin < 0) setInput(0);
   }
 
   // Вычисляем Фибоначчи и сохраняем список промежуточных чисел в cash
@@ -68,10 +71,9 @@ export const FibonacciPage: React.FC = () => {
     <SolutionLayout title="Последовательность Фибоначчи">
       <div className={style.content}> 
         <div className={style.inputBox}>
-          <Input max={19} onChange={event => {onChange(event.currentTarget.value)}}/>
+          <Input value={input} type={'number'} max={19} isLimitText={true} onChange={event => {onChange(event.currentTarget.value)}}/>
           <Button text='Рассчитать' onClick={count} isLoader={isLoader}></Button>
         </div>
-        <p className={style.text}>Максимальное число - 19</p>
         <div className={style.animationBox}>
           {             
             currentStepArray?.map((item, index) => {

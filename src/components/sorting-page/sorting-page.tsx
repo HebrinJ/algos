@@ -87,28 +87,7 @@ export const SortingPage: React.FC = () => {
     setSortedArray(result[0].slice())
     showAnimation();
   }
-
-  // const showAnimation2 = () => {
-
-  //   // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
-  //   if (snapShotCollection[animationStep.current]) {
-  //     setSnapShot(snapShotCollection[animationStep.current]);
-  //   } else if (!snapShotCollection[animationStep.current] && !isAnimationEnd) {      
-  //     resetAnimation();
-  //     // animationStep.current = 0;
-  //     setLoader(false);
-  //     // setIsAnimationEnd(true);
-  //   }
-
-  //   // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в -1 если что-то не так
-  //   if (animationStep.current <= Object.keys(snapShotCollection).length) {
-  //     animationStep.current++;
-  //   } else {
-  //     //animationStep.current = -1;
-  //     resetAnimation();
-  //   }
-  // }
-
+  
   const showAnimation = () => {
     
     // Устанавливаем текущий кадр для анимации

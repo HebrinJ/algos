@@ -4,8 +4,6 @@ import { TElementData, getElementForFrame } from "./frame";
 import { ElementStates } from "../types/element-states";
 
 export const revert = (str: string): [string, Array<Array<TElementData<string>>>] => {
-    // const snapShotCollection: Record<number, TSnapShot<string>> = {};
-    // let step = 0;
     const frameCollection: Array<Array<TElementData<string>>> = [];
     const origin = Array.from(str);
 
@@ -17,8 +15,6 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
     const modified: Array<number> = [];
 
     // Создаём первый снимок и добавляем в коллекцию
-    // let shot = snapShot(origin, [start, end], []);
-    // snapShotCollection[step] = shot;
     let frame: Array<TElementData<string>>;
     frame = origin.map((item, index) => {
         return getElementForFrame<string>(item, index)
@@ -36,9 +32,8 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
         // Сохраняем индексы измененных элементов
         modified.push(start, end);
 
-        // // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
-        // shot = snapShot(origin, changing.slice(), modified.slice());
-        // step++;       
+        // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
+    
         frame = origin.map((item, index) => {
             if(changing.includes(index)) {
                 return getElementForFrame<string>(item, index, ElementStates.Changing)
@@ -50,18 +45,12 @@ export const revert = (str: string): [string, Array<Array<TElementData<string>>>
         })
         frameCollection.push(frame);
 
-        // // Сохраняем снимок в коллекцию
-        // snapShotCollection[step] = shot;
-
         // Изменяем указатели элементов массива для следующей итерации
         start++;
         end--;        
     }
 
     // Создаем финальный снимок, где все элементы модифицированы
-    // shot = snapShot(origin, [], modified.slice());
-    // step++;
-    // snapShotCollection[step] = shot;
     frame = origin.map((item, index) => {
         return getElementForFrame<string>(item, index, ElementStates.Modified)
     })
