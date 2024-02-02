@@ -1,9 +1,13 @@
 import { Direction } from "../types/direction";
 import { TSnapShot, snapShot } from "./snapShot";
 import { swap } from "./swap";
+import { TElementData, getElementForFrame } from "./frame";
+import { ElementStates } from "../types/element-states";
 
-export const sortSelection = (originArray: Array<number>, direction: Direction): [Array<number>, Record<number, TSnapShot<number>>] => {
-    const snapShotCollection: Record<number, TSnapShot<number>> = {};
+export const sortSelection = (originArray: Array<number>, direction: Direction): [Array<number>, Array<Array<TElementData<number>>>] => {
+    const frameCollection: Array<Array<TElementData<number>>> = [];
+
+    //const snapShotCollection: Record<number, TSnapShot<number>> = {};
     const tmpArray = originArray.slice();
     let step = 0;
     let modifiedItemIndex = 0;
@@ -11,8 +15,13 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
     const modified: Array<number> = [];
 
     // Создаём первый снимок и добавляем в коллекцию
-    let shot = snapShot(tmpArray, [], []);
-    snapShotCollection[step] = shot;
+    // let shot = snapShot(tmpArray, [], []);
+    // snapShotCollection[step] = shot;
+    let frame: Array<TElementData<number>>;
+    frame = tmpArray.map((item, index) => {
+        return getElementForFrame<number>(item, index)
+    })
+    frameCollection.push(frame);
 
     // Логика сортировки по убыванию
     if (direction === Direction.Descending) {
@@ -23,8 +32,19 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
 
                 // Снимок каждого проверяемого элемента
                 changing = [j, i];
-                let shot = snapShot(tmpArray, changing.slice(), modified.slice());
-                snapShotCollection[step] = shot;
+                // let shot = snapShot(tmpArray, changing.slice(), modified.slice());
+                // snapShotCollection[step] = shot;
+                frame = tmpArray.map((item, index) => {
+                    if(changing.includes(index)) {
+                        return getElementForFrame<number>(item, index, ElementStates.Changing)
+                    } else if (modified.includes(index)) {
+                        return getElementForFrame<number>(item, index, ElementStates.Modified)
+                    }
+        
+                    return getElementForFrame<number>(item, index)
+                })
+                frameCollection.push(frame);
+
                 step++;
 
                 if (tmpArray[maxInd] < tmpArray[j]) {
@@ -37,8 +57,19 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
             // Снимок измененного массива            
             modified.push(modifiedItemIndex);
             modifiedItemIndex++;
-            let shot = snapShot(tmpArray, [], modified.slice());
-            snapShotCollection[step] = shot;
+            // let shot = snapShot(tmpArray, [], modified.slice());
+            // snapShotCollection[step] = shot;
+            frame = tmpArray.map((item, index) => {
+                if(changing.includes(index)) {
+                    return getElementForFrame<number>(item, index, ElementStates.Changing)
+                } else if (modified.includes(index)) {
+                    return getElementForFrame<number>(item, index, ElementStates.Modified)
+                }
+    
+                return getElementForFrame<number>(item, index)
+            })
+            frameCollection.push(frame);
+
             step++;
         }
     }
@@ -52,8 +83,19 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
 
                 // Снимок каждого проверяемого элемента
                 changing = [j, i];
-                let shot = snapShot(tmpArray, changing.slice(), modified.slice());
-                snapShotCollection[step] = shot;
+                // let shot = snapShot(tmpArray, changing.slice(), modified.slice());
+                // snapShotCollection[step] = shot;
+                frame = tmpArray.map((item, index) => {
+                    if(changing.includes(index)) {
+                        return getElementForFrame<number>(item, index, ElementStates.Changing)
+                    } else if (modified.includes(index)) {
+                        return getElementForFrame<number>(item, index, ElementStates.Modified)
+                    }
+        
+                    return getElementForFrame<number>(item, index)
+                })
+                frameCollection.push(frame);
+
                 step++;
 
                 if (tmpArray[minInd] > tmpArray[j]) {
@@ -66,11 +108,28 @@ export const sortSelection = (originArray: Array<number>, direction: Direction):
             // Снимок измененного массива            
             modified.push(modifiedItemIndex);
             modifiedItemIndex++;
-            let shot = snapShot(tmpArray, [], modified.slice());
-            snapShotCollection[step] = shot;
+            // let shot = snapShot(tmpArray, [], modified.slice());
+            // snapShotCollection[step] = shot;
+            frame = tmpArray.map((item, index) => {
+                if(changing.includes(index)) {
+                    return getElementForFrame<number>(item, index, ElementStates.Changing)
+                } else if (modified.includes(index)) {
+                    return getElementForFrame<number>(item, index, ElementStates.Modified)
+                }
+    
+                return getElementForFrame<number>(item, index)
+            })
+            frameCollection.push(frame);
+
             step++;
-        }
+        }        
     }
 
-    return [tmpArray, snapShotCollection];
+    // Создаем финальный снимок, где все элементы модифицированы
+    frame = tmpArray.map((item, index) => {
+        return getElementForFrame<number>(item, index, ElementStates.Modified)
+    })
+    frameCollection.push(frame);
+
+    return [tmpArray, frameCollection];
 }
