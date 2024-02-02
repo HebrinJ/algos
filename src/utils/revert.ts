@@ -1,10 +1,12 @@
 import { TSnapShot, snapShot } from "./snapShot";
 import { swap } from './swap'
+import { TElementData, getElementForFrame } from "./frame";
+import { ElementStates } from "../types/element-states";
 
-// Временная сложность O(n/2), пространственная сложность O(n)
-export const revert = (str: string): [string, Record<number, TSnapShot<string>>] => {
-    const snapShotCollection: Record<number, TSnapShot<string>> = {};
-    let step = 0;
+export const revert = (str: string): [string, Array<Array<TElementData<string>>>] => {
+    // const snapShotCollection: Record<number, TSnapShot<string>> = {};
+    // let step = 0;
+    const frameCollection: Array<Array<TElementData<string>>> = [];
     const origin = Array.from(str);
 
     let start = 0;
@@ -15,8 +17,13 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
     const modified: Array<number> = [];
 
     // Создаём первый снимок и добавляем в коллекцию
-    let shot = snapShot(origin, [start, end], []);
-    snapShotCollection[step] = shot;
+    // let shot = snapShot(origin, [start, end], []);
+    // snapShotCollection[step] = shot;
+    let frame: Array<TElementData<string>>;
+    frame = origin.map((item, index) => {
+        return getElementForFrame<string>(item, index)
+    })
+    frameCollection.push(frame);
 
     // Логика реверса элементов строки
     while(start < end) {
@@ -29,12 +36,22 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
         // Сохраняем индексы измененных элементов
         modified.push(start, end);
 
-        // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
-        shot = snapShot(origin, changing.slice(), modified.slice());
-        step++;
+        // // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
+        // shot = snapShot(origin, changing.slice(), modified.slice());
+        // step++;       
+        frame = origin.map((item, index) => {
+            if(changing.includes(index)) {
+                return getElementForFrame<string>(item, index, ElementStates.Changing)
+            } else if (modified.includes(index)) {
+                return getElementForFrame<string>(item, index, ElementStates.Modified)
+            }
 
-        // Сохраняем снимок в коллекцию
-        snapShotCollection[step] = shot;
+            return getElementForFrame<string>(item, index)
+        })
+        frameCollection.push(frame);
+
+        // // Сохраняем снимок в коллекцию
+        // snapShotCollection[step] = shot;
 
         // Изменяем указатели элементов массива для следующей итерации
         start++;
@@ -42,9 +59,13 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
     }
 
     // Создаем финальный снимок, где все элементы модифицированы
-    shot = snapShot(origin, [], modified.slice());
-    step++;
-    snapShotCollection[step] = shot;
+    // shot = snapShot(origin, [], modified.slice());
+    // step++;
+    // snapShotCollection[step] = shot;
+    frame = origin.map((item, index) => {
+        return getElementForFrame<string>(item, index, ElementStates.Modified)
+    })
+    frameCollection.push(frame);
 
-    return [origin.join(''), snapShotCollection];
+    return [origin.join(''), frameCollection];
 }

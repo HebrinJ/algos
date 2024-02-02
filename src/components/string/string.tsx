@@ -1,92 +1,71 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import style from "./string.module.css"
 import { Circle } from "../ui/circle/circle";
 import { revert } from "../../utils/revert";
-import { TSnapShot } from "../../utils/snapShot";
 import { DELAY_IN_MS } from "../../constants/delays";
-import { ElementStates } from "../../types/element-states";
+import { TElementData } from "../../utils/frame";
 
 export const StringComponent: React.FC = () => {
 
   const [input, setInput] = useState<string>('');
-  const [snapShotCollection, setSnapShotCollection] = useState<Record<number, TSnapShot<string>>>({})
-  const [snapShot, setSnapShot] = useState<TSnapShot<string>>();
   const [isLoader, setLoader] = useState<boolean>(false);
+  const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null);
 
-  const animationStep = useRef<number>(0);
-
-  useEffect(() => {
-    
-    // Анимация не начиналась
-    if(animationStep.current === 0) {
-      return;
-    } 
-    // Анимация в процессе
-    else {      
-      setTimeout(() => {
-        showAnimation();
-      }, DELAY_IN_MS)
-    }
-
-  }, [snapShot, snapShotCollection])
+  const frameCollection = useRef<Array<Array<TElementData<string>>>>([]);
 
   const onChange = (origin: string) => {
+    if(input.length > 11) return;
+
     setInput(origin);
   }
 
   const revertInput = () => {
     let result = revert(input);
-    setSnapShotCollection(result[1]);
+    frameCollection.current = result[1];
     showAnimation();
-    setLoader(true);
+    setLoader(true);    
+    setInput('');
   }
 
-  const showAnimation = () => {
-    // Устанавливаем снимок для анимации или сбрасываем анимацию если снимки кончились    
-    if(snapShotCollection[animationStep.current]) {
-      setSnapShot(snapShotCollection[animationStep.current]);
-    } else {
-      animationStep.current = 0;
-      setLoader(false);
-    }
+  const showAnimation = useCallback(() => {
     
-    // Увеличиваем шаг анимации, если снимки не закончились или устанавливаем шаг в 0 если что-то не так
-    if(animationStep.current <= Object.keys(snapShotCollection).length) {
-      animationStep.current++;
-    } else {
-      animationStep.current = 0;
-    }
-  }
+    const collectionSize = frameCollection.current.length;
+    let step = 0;
+    setCurrentFrame(frameCollection.current[step])    
+    let timeout = setInterval(() => {
+      
+      if(step < collectionSize) { 
+        setCurrentFrame(frameCollection.current[step])        
+        step++;
+      }
+    }, DELAY_IN_MS)
+
+    setTimeout(() => {
+      clearInterval(timeout);
+      frameCollection.current = [frameCollection.current[collectionSize - 1]]
+      setLoader(false);
+    }, DELAY_IN_MS * collectionSize)
+
+  }, []);
 
   return (
     <SolutionLayout title="Строка">
       <div className={style.content}> 
         <div className={style.inputBox}>
-          <Input type='text' maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
+          <Input value={input} type='text' isLimitText={true} maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
           <Button text='Развернуть' onClick={revertInput} isLoader={isLoader}></Button>
         </div>
-        <p className={style.text}>Максимум - 11 символов</p>
         <div className={style.animationBox}>
-          {snapShot?.object.map((item, index) => {
-
-            // Определяем статус текущего элемента массива
-            let state: ElementStates = ElementStates.Default;
-            if(snapShot.states.changing?.includes(index)) {
-              state = ElementStates.Changing;
-            } else if (snapShot.states.modified?.includes(index)) {
-              state = ElementStates.Modified;
-            }
-
-            // Обработка последнего снимка. Все элементы должны стать Modified
-            if(Object.keys(snapShotCollection).length - 1 === animationStep.current) {
-              state = ElementStates.Modified;
-            }
-            
-            return <Circle letter={item} state={state}/>
-          })}
+          {
+            currentFrame?.map((item, index, array) => {            
+              return <div className={style.circleContainer}>
+                <Circle letter={item.value} index={index} head={item.upperData} tail={item.lowerData} state={item.state}/>
+              </div>
+              })
+          }
         </div>
       </div>
     </SolutionLayout>
