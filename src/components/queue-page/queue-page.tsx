@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import { Queue } from "../../utils/queue";
+import { Queue } from "./queue";
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
 import { v4 as uuidv4 } from "uuid";
 import style from './queue-page.module.css';
+import { SHORT_INPUT_LENGTH } from "../../constants/inputLength";
 
 export const QueuePage: React.FC = () => {
   
@@ -16,6 +17,9 @@ export const QueuePage: React.FC = () => {
   const [isAdd, setIsAdd] = useState<boolean>(false);
   const [isRemove, setIsRemove] = useState<boolean>(false);
   const [endStack, setEndStack] = useState<boolean>(false);
+  const [isLoaderAdd, setIsLoaderAdd] = useState<boolean>(false);
+  const [isLoaderRemove, setIsLoaderRemove] = useState<boolean>(false);
+  const [disableBtns, setDisableBtns] = useState<boolean>(false);
 
   const queue = useRef(new Queue<number>(7));
 
@@ -27,6 +31,7 @@ export const QueuePage: React.FC = () => {
   useEffect(() => {
     if(isAdd || isRemove) {
       const timerId = setTimeout(() => {
+        setDefaultButtonState(false);
         setIsAdd(false);
         setIsRemove(false);
       }, SHORT_DELAY_IN_MS)
@@ -51,6 +56,8 @@ export const QueuePage: React.FC = () => {
     setCurrentArray(newArray);
     clearInput();
     setIsAdd(true);
+    setDisableBtns(true);
+    setIsLoaderAdd(true);
 
     if((queue.current.getTail() - 1) >= 6) {
       console.log('Превышен индекс');
@@ -60,6 +67,8 @@ export const QueuePage: React.FC = () => {
 
   const remove = () => {
     setIsRemove(true);
+    setDisableBtns(true);
+    setIsLoaderRemove(true);
 
     setTimeout(() => {
       queue.current.dequeue();
@@ -82,23 +91,19 @@ export const QueuePage: React.FC = () => {
     setInput('');
   }
 
-  const buttonState = (): boolean => {
-    for (let i = 0; i < currentArray.length; i++) {
-      if(currentArray[i] !== null) {
-        return false;
-      }      
-    }
-
-    return true;
-  }
+  const setDefaultButtonState = (state: boolean) => {
+    setDisableBtns(state);
+    setIsLoaderAdd(state);
+    setIsLoaderRemove(state);
+}
 
   return (
     <SolutionLayout title="Очередь">
       <div className={style.controlBox}>
-        <Input type='text' maxLength={4} isLimitText={true} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.input} />
-        <Button text='Добавить' onClick={add} disabled={!input || endStack} />
-        <Button text='Удалить' onClick={remove} disabled={buttonState()} />
-        <Button text='Очистить' extraClass={style.clear} onClick={clearQueue} disabled={buttonState()} />
+        <Input type='text' maxLength={SHORT_INPUT_LENGTH} isLimitText={true} onChange={event => { onChange(event.currentTarget.value) }} value={input} extraClass={style.input} />
+        <Button text='Добавить' onClick={add} isLoader={isLoaderAdd} disabled={!input || endStack} />
+        <Button text='Удалить' onClick={remove} isLoader={isLoaderRemove} disabled={disableBtns} />
+        <Button text='Очистить' extraClass={style.clear} onClick={clearQueue} disabled={disableBtns} />
       </div>
       <div className={style.animationBox}>
         {

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import { LinkedList, Node } from "../../utils/linkedList";
+import { LinkedList } from "./linkedList";
 import { Circle } from "../ui/circle/circle";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
 import { DELAY_IN_MS } from "../../constants/delays";
@@ -11,6 +11,7 @@ import { ElementStates } from "../../types/element-states";
 import { v4 as uuidv4 } from "uuid";
 import { BtnsTypes } from "../../utils/btnsTypes";
 import style from './list-page.module.css';
+import { SHORT_INPUT_LENGTH } from "../../constants/inputLength";
 
 export const ListPage: React.FC = () => {
 
@@ -23,12 +24,17 @@ export const ListPage: React.FC = () => {
   const [inputIndex, setInputIndex] = useState<string>('');
   const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null);
   const [pressedBtn, setPressedBtn] = useState<BtnsTypes>(BtnsTypes.none);
-  const [isBtnDisable, setIsBtnDisable] = useState<boolean>(false);
+  const [isAddValueBtnDisable, setIsAddValueBtnDisable] = useState<boolean>(false);
+  const [isRemoveBtnDisable, setIsRemoveBtnDisable] = useState<boolean>(false);
+  const [isIndxAddBtnDisable, setIsIndxAddBtnDisable] = useState<boolean>(false);
+  const [isIndxRemoveBtnDisable, setIsIndxRemoveBtnDisable] = useState<boolean>(false);
+  
 
   useEffect(() => {
 
     const currentArray = setListToArray();
     setCurrentFrame(getDefaultFrame(currentArray));
+    setDefaultBtnsStates();
     
   }, [])
 
@@ -40,7 +46,6 @@ export const ListPage: React.FC = () => {
     setTail: (item: string, index: number) => TElementData<string>,
     setExtra: null | ((item: string, index: number, extraIndex: number) => TElementData<string>) = null,
     extraIndex: number | undefined = undefined,
-    saveChanges: boolean = false
     ) => {
       if(index === 0) {        
         return setHead(item, index);
@@ -49,7 +54,7 @@ export const ListPage: React.FC = () => {
       }
 
       if(setExtra && extraIndex) {        
-        if(extraIndex === index || (saveChanges && extraIndex >= index)) {
+        if(extraIndex === index) {
           return setExtra(item, index, extraIndex);
         }
       }
@@ -71,7 +76,7 @@ export const ListPage: React.FC = () => {
   }
 
   const showAnimation = useCallback(() => {
-    setIsBtnDisable(true);
+    disableAllBtns(true);
     
     const collectionSize = frameCollection.current.length;
     let step = 0;
@@ -87,7 +92,7 @@ export const ListPage: React.FC = () => {
     setTimeout(() => {
       clearInterval(timeout);
       frameCollection.current = [frameCollection.current[collectionSize - 1]];
-      setIsBtnDisable(false);
+      setDefaultBtnsStates();
       setPressedBtn(BtnsTypes.none);
     }, DELAY_IN_MS * collectionSize)
 
@@ -142,7 +147,7 @@ export const ListPage: React.FC = () => {
       // Запуск покадровой анимации
       showAnimation();
 
-      setInputValue('');
+      setInputValue('');    
     }
   }
 
@@ -194,8 +199,8 @@ export const ListPage: React.FC = () => {
     frameCollection.current = [];
 
     // Первый кадр состояния
-    let setHead = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, 'head', <Circle letter={item} state={ElementStates.Changing} isSmall={true}/>);
-    let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
+    const setHead = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, 'head', <Circle letter={item} state={ElementStates.Changing} isSmall={true}/>);
+    const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );   
 
     frame = setListToArray().map((item, index, array) => {
       return fillFramePattern(item, index, array, setHead, setTail);
@@ -222,8 +227,8 @@ export const ListPage: React.FC = () => {
     frameCollection.current = [];
 
     // Первый кадр состояния
-    let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
-    let setTail = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );   
+    const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+    const setTail = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );   
 
     frame = setListToArray().map((item, index, array) => {
       return fillFramePattern(item, index, array, setHead, setTail);
@@ -262,12 +267,16 @@ export const ListPage: React.FC = () => {
       // Создаём кадры передвижения по массиву
       while(currIndex <= +inputIndex) {
         
-        let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
-        let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
-        let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing );
+        const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
+        const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+        const setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing );
 
         frame = setListToArray().map((item, index, array) => {
-          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex, true);
+          if(index < currIndex && index !== 0) {
+            return getElementForFrame<string>(item, index, ElementStates.Changing);
+          }
+
+          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex);
         })
         frameCollection.current.push(frame);
 
@@ -275,9 +284,9 @@ export const ListPage: React.FC = () => {
       }
 
       // Кадр с изменяемым элементом
-      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
-      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
-      let setExtra = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );
+      const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+      const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+      const setExtra = (item: string, index: number) => getElementForFrame<string>('', index, ElementStates.Changing, null, <Circle letter={item} state={ElementStates.Changing} isSmall={true}/> );
 
       frame = setListToArray().map((item, index, array) => {
         return fillFramePattern(item, index, array, setHead, setTail, setExtra, +inputIndex);
@@ -314,12 +323,16 @@ export const ListPage: React.FC = () => {
       // Создаём кадры передвижения по массиву
       while(currIndex <= +inputIndex) {
         
-        let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
-        let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
-        let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing );
+        const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, 'head' );
+        const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+        const setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/> );
 
         frame = setListToArray().map((item, index, array) => {
-          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex, true);
+          if(index < currIndex && index !== 0) {
+            return getElementForFrame<string>(item, index, ElementStates.Changing);
+          }
+
+          return fillFramePattern(item, index, array, setHead, setTail, setExtra, currIndex );
         })
         frameCollection.current.push(frame);
 
@@ -327,9 +340,9 @@ export const ListPage: React.FC = () => {
       }
 
       // Кадр с изменяемым элементом
-      let setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
-      let setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
-      let setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/>  );
+      const setHead = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, 'head' );
+      const setTail = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Default, null, 'tail' );
+      const setExtra = (item: string, index: number) => getElementForFrame<string>(item, index, ElementStates.Changing, <Circle letter={inputValue} state={ElementStates.Changing} isSmall={true}/>  );
 
       frame = setListToArray().map((item, index, array) => {
         return fillFramePattern(item, index, array, setHead, setTail, setExtra, +inputIndex);
@@ -351,12 +364,24 @@ export const ListPage: React.FC = () => {
   }
 
   const onInputValueChange = (origin: string) => {
-    if(inputValue.length > 4) return;
 
+    (origin.length > SHORT_INPUT_LENGTH || origin === '') ? setIsAddValueBtnDisable(true) : setIsAddValueBtnDisable(false);    
     setInputValue(origin);
   }
 
   const onInputIndexChange = (origin: string) => {
+    // Удаление активно если индекс не пустой и в диапазоне
+    (+origin >= linkedList.current.getSize() || origin === '') ? setIsIndxRemoveBtnDisable(true) : setIsIndxRemoveBtnDisable(false);
+
+    // Добавление активно, если индекс не пустой, в диапазоне и есть значение в верхнем поле ввода
+    if(+origin < linkedList.current.getSize() && origin !== '') {
+      if(inputValue.length > 0) {
+        setIsIndxAddBtnDisable(false);
+      }      
+    } else {
+      setIsIndxAddBtnDisable(true);
+    }
+
     setInputIndex(origin);
   }
 
@@ -368,20 +393,34 @@ export const ListPage: React.FC = () => {
     return false;
   }
 
+  const disableAllBtns = (state: boolean) => {
+    setIsAddValueBtnDisable(state);
+    setIsRemoveBtnDisable(state);
+    setIsIndxRemoveBtnDisable(state);
+    setIsIndxAddBtnDisable(state);
+  }
+
+  const setDefaultBtnsStates = () => {
+    setIsAddValueBtnDisable(true);
+    setIsIndxRemoveBtnDisable(true);
+    setIsIndxAddBtnDisable(true);
+    setIsRemoveBtnDisable(false);
+  }
+
   return (
     <SolutionLayout title="Связный список">
       <div className={style.controlBox}>
         <div className={style.menu}>
-          <Input maxLength={4} isLimitText={true} value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value) }/>
-          <Button text='Добавить в head' onClick={addToHead} isLoader={setLoader(BtnsTypes.addToHead)} disabled={isBtnDisable}/>
-          <Button text='Добавить в tail' onClick={addToTail} isLoader={setLoader(BtnsTypes.addToTail)} disabled={isBtnDisable}/>
-          <Button text='Удалить из head' onClick={removeFromHead} isLoader={setLoader(BtnsTypes.removeFromHead)} disabled={isBtnDisable}/>
-          <Button text='Удалить из tail' onClick={removeFromTail} isLoader={setLoader(BtnsTypes.removeFromTail)} disabled={isBtnDisable}/>
+          <Input maxLength={SHORT_INPUT_LENGTH} isLimitText={true} value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value)} extraClass={style.input}/>
+          <Button text='Добавить в head' onClick={addToHead} isLoader={setLoader(BtnsTypes.addToHead)} disabled={isAddValueBtnDisable} extraClass={style.upBtn}/>
+          <Button text='Добавить в tail' onClick={addToTail} isLoader={setLoader(BtnsTypes.addToTail)} disabled={isAddValueBtnDisable} extraClass={style.upBtn}/>
+          <Button text='Удалить из head' onClick={removeFromHead} isLoader={setLoader(BtnsTypes.removeFromHead)} disabled={isRemoveBtnDisable} extraClass={style.upBtn}/>
+          <Button text='Удалить из tail' onClick={removeFromTail} isLoader={setLoader(BtnsTypes.removeFromTail)} disabled={isRemoveBtnDisable} extraClass={style.upBtn}/>
         </div>
         <div className={style.menu}>
-          <Input value={inputIndex} onChange={event => onInputIndexChange(event.currentTarget.value)} />
-          <Button text='Добавить по индексу' onClick={insertAtIndex} isLoader={setLoader(BtnsTypes.insertAtIndex)} disabled={isBtnDisable}/>
-          <Button text='Удалить по индексу' onClick={removeAtIndex} isLoader={setLoader(BtnsTypes.removeAtIndex)} disabled={isBtnDisable}/>
+          <Input value={inputIndex} onChange={event => onInputIndexChange(event.currentTarget.value)} extraClass={style.input} />
+          <Button text='Добавить по индексу' onClick={insertAtIndex} isLoader={setLoader(BtnsTypes.insertAtIndex)} disabled={isIndxAddBtnDisable} extraClass={style.dnBtn}/>
+          <Button text='Удалить по индексу' onClick={removeAtIndex} isLoader={setLoader(BtnsTypes.removeAtIndex)} disabled={isIndxRemoveBtnDisable} extraClass={style.dnBtn}/>
         </div>
       </div>
       <div className={style.animationBox}>

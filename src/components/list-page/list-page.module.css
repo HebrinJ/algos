@@ -2,6 +2,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    max-width: 80vw;
+    margin: auto;
     margin-bottom: 90px;
 }
 
@@ -13,7 +15,20 @@
 
 .menu {
     display: flex;
+    justify-content: center;
     gap: 12px;
+}
+
+.input {
+    max-width: 204px;
+}
+
+.upBtn {
+    width: 175px;
+}
+
+.dnBtn {
+    width: 362px;
 }
 
 .circleContainer {

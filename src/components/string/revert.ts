@@ -1,6 +1,6 @@
-import { swap } from './swap'
-import { TElementData, getDefaultFrame, getMultyStatesFrame } from "./frame";
-import { ElementStates } from "../types/element-states";
+import { swap } from '../../utils/swap'
+import { TElementData, getDefaultFrame, getMultyStatesFrame } from "../../utils/frame";
+import { ElementStates } from "../../types/element-states";
 
 export const revert = (str: string): [string, Array<Array<TElementData<string>>>] => {
 

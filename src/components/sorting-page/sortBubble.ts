@@ -1,7 +1,7 @@
-import { Direction } from "../types/direction";
-import { swap } from "./swap";
-import { TElementData, getDefaultFrame, getElementForFrame, getMultyStatesFrame } from "./frame";
-import { ElementStates } from "../types/element-states";
+import { Direction } from "../../types/direction";
+import { swap } from "../../utils/swap";
+import { TElementData, getDefaultFrame, getElementForFrame, getMultyStatesFrame } from "../../utils/frame";
+import { ElementStates } from "../../types/element-states";
 
 export const sortBubble = (originArray: Array<number>, direction: Direction): [Array<number>, Array<Array<TElementData<number>>>] => {
     const frameCollection: Array<Array<TElementData<number>>> = [];

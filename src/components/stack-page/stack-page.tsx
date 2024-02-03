@@ -6,21 +6,25 @@ import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
 import { v4 as uuidv4 } from "uuid";
-import { Stack } from "../../utils/stack";
+import { Stack } from "./stack";
 import style from './stack-page.module.css'
+import { SHORT_INPUT_LENGTH } from "../../constants/inputLength";
 
 export const StackPage: React.FC = () => {
 
   const [currentStack, setCurrentStack] = useState<Array<any>>([]);
   const [input, setInput] = useState<string>('');
   const [isChanging, setIsChanging] = useState<boolean>(false);
+  const [isLoaderAdd, setIsLoaderAdd] = useState<boolean>(false);
+  const [isLoaderRemove, setIsLoaderRemove] = useState<boolean>(false);
+  const [disableBtns, setDisableBtns] = useState<boolean>(false);
 
   const stack = useRef<Stack<any>>(new Stack());
 
   useEffect(() => {
     if(isChanging) {
       const timerId = setTimeout(() => {
-        setIsChanging(false);
+        setDefaultButtonState(false);
       }, SHORT_DELAY_IN_MS)
 
       return () => {
@@ -33,22 +37,33 @@ export const StackPage: React.FC = () => {
     if (!item) return
 
     setIsChanging(true);
+    setIsLoaderAdd(true);
+    setDisableBtns(true);
     setInput('');
     
     stack.current.push(item);
     setCurrentStack(stack.current.getStack().slice());
   }
 
-  const pop = () => {
+  const pop = () => {   
 
     if (stack) {
-      setIsChanging(true)
+      setIsChanging(true);
+      setIsLoaderRemove(true);
+      setDisableBtns(true);
 
       setTimeout(() => {
         stack.current.pop();
         setCurrentStack(stack.current.getStack().slice());
       }, SHORT_DELAY_IN_MS);
     }
+  }
+
+  const setDefaultButtonState = (state: boolean) => {
+      setIsChanging(state);
+      setDisableBtns(state);
+      setIsLoaderAdd(state);
+      setIsLoaderRemove(state);
   }
 
   const onChange = (origin: string) => {
@@ -62,23 +77,13 @@ export const StackPage: React.FC = () => {
     setCurrentStack(stack.current.getStack().slice());
   }
 
-  const buttonState = (): boolean => {
-    for (let i = 0; i < currentStack.length; i++) {
-      if(currentStack[i] !== null) {
-        return false;
-      }      
-    }
-
-    return true;
-  }
-
   return (
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
-        <Input type='text' maxLength={4} isLimitText={true} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
-        <Button text='Добавить' onClick={() => { push(input) }} disabled={isChanging}/>
-        <Button text='Удалить' onClick={pop} disabled={buttonState()}/>
-        <Button text='Очистить' extraClass={style.clear} onClick={onClear} disabled={buttonState()}/>
+        <Input type='text' maxLength={SHORT_INPUT_LENGTH} isLimitText={true} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
+        <Button text='Добавить' onClick={() => { push(input) }} isLoader={isLoaderAdd} disabled={isChanging}/>
+        <Button text='Удалить' onClick={pop} isLoader={isLoaderRemove} disabled={disableBtns}/>
+        <Button text='Очистить' extraClass={style.clear} onClick={onClear} disabled={disableBtns}/>
       </div>
       <div className={style.animationBox}>
         {

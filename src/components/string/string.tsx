@@ -3,11 +3,12 @@ import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
-import { revert } from "../../utils/revert";
+import { revert } from "./revert";
 import { DELAY_IN_MS } from "../../constants/delays";
 import { TElementData } from "../../utils/frame";
 import { v4 as uuidv4 } from "uuid";
 import style from "./string.module.css"
+import { LONG_INPUT_LENGTH } from "../../constants/inputLength";
 
 export const StringComponent: React.FC = () => {
 
@@ -56,7 +57,7 @@ export const StringComponent: React.FC = () => {
     <SolutionLayout title="Строка">
       <div className={style.content}> 
         <div className={style.inputBox}>
-          <Input value={input} type='text' isLimitText={true} maxLength={11} onChange={event => {onChange(event.currentTarget.value)}}/>
+          <Input value={input} type='text' isLimitText={true} maxLength={LONG_INPUT_LENGTH} onChange={event => {onChange(event.currentTarget.value)}}/>
           <Button text='Развернуть' onClick={revertInput} isLoader={isLoader}></Button>
         </div>
         <div className={style.animationBox}>

@@ -4,9 +4,9 @@ import { RadioInput } from "../ui/radio-input/radio-input";
 import { Button } from "../ui/button/button";
 import { Direction } from "../../types/direction";
 import { Column } from "../ui/column/column";
-import { sortSelection } from "../../utils/sortSelection";
+import { sortSelection } from "./sortSelection";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
-import { sortBubble } from "../../utils/sortBubble";
+import { sortBubble } from "./sortBubble";
 import { v4 as uuidv4 } from "uuid";
 import { TElementData, getDefaultFrame } from "../../utils/frame";
 import style from "./sorting-page.module.css"
@@ -19,7 +19,7 @@ export const SortingPage: React.FC = () => {
   const [disableBtn, setDisableBtn] = useState<boolean>(false);
   const [currentFrame, setCurrentFrame] = useState<Array<TElementData<number>> | null>(null);
 
-  // 0 - Сортировка выбором, 0 - Сортировка пузырьком 
+  // 0 - Сортировка выбором, 1 - Сортировка пузырьком 
   const [sortType, setSortType] = useState<number>(0);
   const frameCollection = useRef<Array<Array<TElementData<number>>>>([]);
 
