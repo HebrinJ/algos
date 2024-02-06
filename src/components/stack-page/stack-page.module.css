@@ -1,0 +1,30 @@
+.controlBox {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 96px 48px;
+}
+
+.input {
+    min-width: 377px;
+}
+
+.clear {
+    margin-left: 80px;
+}
+
+.animationBox {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.circleBox {
+    display: flex;
+    flex-direction: column;
+    min-height: 140px;
+}
+
+.topText {
+    min-height: 22px;
+}

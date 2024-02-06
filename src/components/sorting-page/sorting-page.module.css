@@ -1,0 +1,23 @@
+.controlBox {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 48px;
+}
+
+.imageBox {
+    display: flex;    
+    justify-content: center;
+    align-items: end;
+    gap: 10px;
+}
+
+.selectors {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.sort {
+    display: flex;
+    gap: 12px;
+}

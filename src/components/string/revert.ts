@@ -1,9 +1,11 @@
-import { TSnapShot, snapShot } from "./snapShot";
+import { swap } from '../../utils/swap'
+import { TElementData, getDefaultFrame, getMultyStatesFrame } from "../../utils/frame";
+import { ElementStates } from "../../types/element-states";
 
-// Временная сложность O(n/2), пространственная сложность O(n)
-export const revert = (str: string): [string, Record<number, TSnapShot<string>>] => {
-    const snapShotCollection: Record<number, TSnapShot<string>> = {};
-    let step = 0;
+export const revert = (str: string): [string, Array<Array<TElementData<string>>>] => {
+
+    // Массив снимков, каждый из которых содержит массив объектов описывающих состояние каждого элемента в обрабатываемом массиве
+    const frameCollection: Array<Array<TElementData<string>>> = [];
     const origin = Array.from(str);
 
     let start = 0;
@@ -14,8 +16,7 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
     const modified: Array<number> = [];
 
     // Создаём первый снимок и добавляем в коллекцию
-    let shot = snapShot(origin, [start, end], []);
-    snapShotCollection[step] = shot;
+    frameCollection.push(getDefaultFrame(origin));
 
     // Логика реверса элементов строки
     while(start < end) {
@@ -26,14 +27,10 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
         swap(origin, start, end);
 
         // Сохраняем индексы измененных элементов
-        modified.push(start, end)
+        modified.push(start, end);
 
         // Создаем снимок с элементами которые будут меняться на следующем шаге и которые изменились на этом
-        shot = snapShot(origin, changing.slice(), modified.slice());
-        step++;
-
-        // Сохраняем снимок в коллекцию
-        snapShotCollection[step] = shot;
+        frameCollection.push(getMultyStatesFrame(origin, changing, modified))
 
         // Изменяем указатели элементов массива для следующей итерации
         start++;
@@ -41,15 +38,7 @@ export const revert = (str: string): [string, Record<number, TSnapShot<string>>]
     }
 
     // Создаем финальный снимок, где все элементы модифицированы
-    shot = snapShot(origin, [], modified.slice());
-    step++;
-    snapShotCollection[step] = shot;
+    frameCollection.push(getDefaultFrame(origin, ElementStates.Modified));
 
-    return [origin.join(''), snapShotCollection];
-}
-
-const swap = (arr: Array<string>, firstIndex: number, secondIndex: number) => {
-    const tmp = arr[firstIndex];
-    arr[firstIndex] = arr[secondIndex];
-    arr[secondIndex] = tmp;
+    return [origin.join(''), frameCollection];
 }

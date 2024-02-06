@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: row;    
     gap: 12px;
-    margin-bottom: 120px;
+    margin-bottom: 48px;
 }
 
 .text {
@@ -18,7 +18,14 @@
 }
 
 .animationBox {
+    max-width: 80vw;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 16px;
+}
+
+.circleBox {
+    display: flex;
+    flex-direction: column;
 }
