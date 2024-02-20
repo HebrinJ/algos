@@ -99,24 +99,24 @@ export const StackPage: React.FC = () => {
           currentStack?.map((item, index) => {
             if(index === currentStack.length - 1 && isChanging) {
               return <div key={uuidv4()} className={style.circleBox}>
-                <p className={style.topText}>{'top'}</p>
-                <Circle letter={item} state={ElementStates.Changing}/>
-                <p>{index}</p>
+                {/* <p className={style.topText}>{'top'}</p> */}
+                <Circle letter={item} state={ElementStates.Changing} index={index} head='top'/>
+                {/* <p>{index}</p> */}
               </div>              
             }
 
             if(index === currentStack.length - 1) {
               return <div key={uuidv4()} className={style.circleBox}>
-                <p className={style.topText}>{'top'}</p>
-                <Circle letter={item}/>
-                <p>{index}</p>
+                {/* <p className={style.topText}>{'top'}</p> */}
+                <Circle letter={item} index={index} head='top'/>
+                {/* <p>{index}</p> */}
               </div> 
             }
 
             return <div key={uuidv4()} className={style.circleBox}>
-              <p className={style.topText}></p>
-              <Circle letter={item}/>
-              <p>{index}</p>
+              {/* <p className={style.topText}></p> */}
+              <Circle letter={item} index={index}/>
+              {/* <p>{index}</p> */}
             </div>
           })
         }
