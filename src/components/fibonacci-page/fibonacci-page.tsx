@@ -13,10 +13,19 @@ export const FibonacciPage: React.FC = () => {
 
   const [input, setInput] = useState<number | undefined>();
   const [currentStepArray, setCurrentStepArray] = useState<Array<number>>([]);
+  const [isDisabled, setDisabled] = useState<boolean>(true);
   const [isLoader, setLoader] = useState<boolean>(false);
 
   const cash = useRef<Record<number, number>>({ 0: 0, 1: 1 });
   const animationStep = useRef<number>(0);
+
+  useEffect(() => {
+    if(input && input >= 0 && input <= 19) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [input])
 
   useEffect(() => {
     
@@ -82,7 +91,7 @@ export const FibonacciPage: React.FC = () => {
       <div className={style.content}> 
         <div className={style.inputBox}>
           <Input value={input} type={'number'} min={MIN_INPUT_VALUE} max={MAX_INPUT_VALUE} isLimitText={true} placeholder='Выберите число' onChange={event => {onChange(event.currentTarget.value)}}/>
-          <Button text='Рассчитать' onClick={count} isLoader={isLoader}></Button>
+          <Button text='Рассчитать' onClick={count} isLoader={isLoader} disabled={isDisabled}></Button>
         </div>
         <div className={style.animationBox}>
           {             

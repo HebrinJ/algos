@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
@@ -14,9 +14,18 @@ export const StringComponent: React.FC = () => {
 
   const [input, setInput] = useState<string>('');
   const [isLoader, setLoader] = useState<boolean>(false);
+  const [isDisabled, setDisabled] = useState<boolean>(true);
   const [currentFrame, setCurrentFrame] = useState<Array<TElementData<string>> | null>(null);
 
   const frameCollection = useRef<Array<Array<TElementData<string>>>>([]);
+
+  useEffect(() => {
+    if(input.length !== 0) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [input])
 
   const onChange = (origin: string) => {
     if (input.length > 11) return;
@@ -58,7 +67,7 @@ export const StringComponent: React.FC = () => {
       <div className={style.content}>
         <div className={style.inputBox}>
           <Input value={input} type='text' isLimitText={true} maxLength={LONG_INPUT_LENGTH} onChange={event => { onChange(event.currentTarget.value) }} />
-          <Button text='Развернуть' onClick={revertInput} isLoader={isLoader}></Button>
+          <Button text='Развернуть' onClick={revertInput} isLoader={isLoader} disabled={isDisabled}></Button>
         </div>
         <div className={style.animationBox}>
           {
