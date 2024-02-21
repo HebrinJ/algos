@@ -1,5 +1,3 @@
-import { ElementStates } from '../../src/types/element-states'
-
 describe('Stack page tests', () => {
   beforeEach(() => {
     cy.visit('http://localhost:3000/stack')
@@ -7,10 +5,10 @@ describe('Stack page tests', () => {
 
   it('Button should be disabled if input empty', () => {
     cy.get('input').should('contain', '');
-    cy.get('button').should('be.disabled');
+    cy.get('button').contains('Добавить').parent().should('be.disabled');
     
     cy.get('input').type('6');
-    cy.get('button').should('not.be.disabled');
+    cy.get('button').contains('Добавить').parent().should('not.be.disabled');
   })
 
   it('Should correct remove element', () => {
@@ -27,7 +25,8 @@ describe('Stack page tests', () => {
     cy.wait(1100);
 
     cy.get('button').contains('Удалить').click();
-    cy.get('div').should('not.include.text', '8');
+    cy.wait(1100);
+    cy.contains('8').should('not.exist');
   })
 
   it('Should clear stack', () => {
