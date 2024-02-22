@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 import { getFibonacciNumbers } from '../../src/components/fibonacci-page/fibon';
 
 describe('Fibonacci tests', () => {

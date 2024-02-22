@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('routing is on', () => {
   beforeEach(() => {
     cy.visit('http://localhost:3000');

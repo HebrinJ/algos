@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Stack page tests', () => {
     beforeEach(() => {
       cy.visit('http://localhost:3000/queue')

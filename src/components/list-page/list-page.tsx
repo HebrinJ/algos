@@ -411,14 +411,14 @@ export const ListPage: React.FC = () => {
     <SolutionLayout title="Связный список">
       <div className={style.controlBox}>
         <div className={style.menu}>
-          <Input maxLength={SHORT_INPUT_LENGTH} isLimitText={true} value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value)} extraClass={style.input}/>
+          <Input maxLength={SHORT_INPUT_LENGTH} isLimitText={true} value={inputValue} onChange={event => onInputValueChange(event.currentTarget.value)} extraClass={style.input} data-name='input-value'/>
           <Button text='Добавить в head' onClick={addToHead} isLoader={setLoader(BtnsTypes.addToHead)} disabled={isAddValueBtnDisable} extraClass={style.upBtn}/>
           <Button text='Добавить в tail' onClick={addToTail} isLoader={setLoader(BtnsTypes.addToTail)} disabled={isAddValueBtnDisable} extraClass={style.upBtn}/>
           <Button text='Удалить из head' onClick={removeFromHead} isLoader={setLoader(BtnsTypes.removeFromHead)} disabled={isRemoveBtnDisable} extraClass={style.upBtn}/>
           <Button text='Удалить из tail' onClick={removeFromTail} isLoader={setLoader(BtnsTypes.removeFromTail)} disabled={isRemoveBtnDisable} extraClass={style.upBtn}/>
         </div>
         <div className={style.menu}>
-          <Input value={inputIndex} onChange={event => onInputIndexChange(event.currentTarget.value)} extraClass={style.input} />
+          <Input value={inputIndex} onChange={event => onInputIndexChange(event.currentTarget.value)} extraClass={style.input} data-name='input-index'/>
           <Button text='Добавить по индексу' onClick={insertAtIndex} isLoader={setLoader(BtnsTypes.insertAtIndex)} disabled={isIndxAddBtnDisable} extraClass={style.dnBtn}/>
           <Button text='Удалить по индексу' onClick={removeAtIndex} isLoader={setLoader(BtnsTypes.removeAtIndex)} disabled={isIndxRemoveBtnDisable} extraClass={style.dnBtn}/>
         </div>
