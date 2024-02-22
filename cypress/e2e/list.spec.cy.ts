@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { getElementIndexByValue, getElementWithValue, getBottomElementOfValue, getEmptyElementByIndex, getTopElementOfValue } from "./test-helper";
 
 describe('Stack page tests', () => {
     beforeEach(() => {
@@ -209,23 +210,3 @@ describe('Stack page tests', () => {
     })
 
 })
-
-function getElementWithValue(value: string) {
-    return cy.get('.text_type_circle').contains(value).parent();
-}
-
-function getTopElementOfValue(mainValue: string) {
-    return cy.get('.text_type_circle').contains(mainValue).parent().parent().find('[class*=circle_head]');
-}
-
-function getBottomElementOfValue(mainValue: string) {
-    return cy.get('.text_type_circle').contains(mainValue).parent().parent().find('[class*=circle_tail]')
-}
-
-function getElementIndexByValue(value: string) {
-    return cy.get('.text_type_circle').contains(value).parent().parent().find('[class*=circle_index]');
-}
-
-function getEmptyElementByIndex(index: number) {
-    return cy.get('[class*=circle_index]').contains(index.toString()).prev();
-}

@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { getElementWithValue, getBottomElementOfValue, getEmptyElementByIndex, getTopElementOfValue } from "./test-helper";
 
 describe('Stack page tests', () => {
   beforeEach(() => {
@@ -52,48 +53,49 @@ describe('Stack page tests', () => {
     cy.get('input').type('3');
     cy.get('button').contains('Добавить').click();    
     
-    cy.get('.text_type_circle').contains('3').parent().parent().should('contain', 'top');
-    cy.get('.text_type_circle').contains('3').parent().invoke('attr', 'class').should('contain', 'circle_changing');
+    getTopElementOfValue('3').should('contain', 'top');
+    getElementWithValue('3').invoke('attr', 'class').should('contain', 'circle_changing');
 
     cy.wait(1100);
 
     cy.get('input').type('1');
     cy.get('button').contains('Добавить').click(); 
 
-    cy.get('.text_type_circle').contains('3').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('3').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('1').parent().parent().should('contain', 'top');
-    cy.get('.text_type_circle').contains('1').parent().invoke('attr', 'class').should('contain', 'circle_changing');
+    getTopElementOfValue('3').should('not.contain', 'top');
+    getElementWithValue('3').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('1').should('contain', 'top');
+    getElementWithValue('1').invoke('attr', 'class').should('contain', 'circle_changing');
 
     cy.wait(1100);
 
     cy.get('input').type('5');
     cy.get('button').contains('Добавить').click(); 
 
-    cy.get('.text_type_circle').contains('3').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('3').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('1').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('1').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('5').parent().parent().should('contain', 'top');
-    cy.get('.text_type_circle').contains('5').parent().invoke('attr', 'class').should('contain', 'circle_changing');
+    getTopElementOfValue('3').should('not.contain', 'top');
+    getElementWithValue('3').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('1').should('not.contain', 'top');
+    getElementWithValue('1').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('5').should('contain', 'top');
+    getElementWithValue('5').invoke('attr', 'class').should('contain', 'circle_changing');
 
     cy.wait(1100);
 
     cy.get('button').contains('Удалить').click();
 
-    cy.get('.text_type_circle').contains('3').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('3').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('1').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('1').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('5').parent().parent().should('contain', 'top');
-    cy.get('.text_type_circle').contains('5').parent().invoke('attr', 'class').should('contain', 'circle_changing');
+    getTopElementOfValue('3').should('not.contain', 'top');
+    getElementWithValue('3').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('1').should('not.contain', 'top');
+    getElementWithValue('1').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('5').should('contain', 'top');
+    getElementWithValue('5').invoke('attr', 'class').should('contain', 'circle_changing');
 
     cy.wait(1100);
 
-    cy.get('.text_type_circle').contains('3').parent().parent().should('not.contain', 'top');
-    cy.get('.text_type_circle').contains('3').parent().invoke('attr', 'class').should('contain', 'circle_default');
-    cy.get('.text_type_circle').contains('1').parent().parent().should('contain', 'top');
-    cy.get('.text_type_circle').contains('1').parent().invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('3').should('not.contain', 'top');
+    getElementWithValue('3').invoke('attr', 'class').should('contain', 'circle_default');
+    getTopElementOfValue('1').should('contain', 'top');
+    getElementWithValue('1').invoke('attr', 'class').should('contain', 'circle_default');
+    cy.get('.text_type_circle').contains('5').should('not.exist');
 
   })
 })
