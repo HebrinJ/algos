@@ -23,8 +23,8 @@ it('Should return one element array after bubble sort', () => {
 })
 
 it('Should return empty array after bubble sort', () => {
-    const array = [];
-    const descSortArray = []
+    const array: Array<number> = [];
+    const descSortArray: Array<number> = []
 
     expect(descSortArray).toEqual(sortBubble(array, Direction.Descending)[0])
 })

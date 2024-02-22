@@ -23,8 +23,8 @@ it('Should return one element array after selection sort', () => {
 })
 
 it('Should return empty array after selection sort', () => {
-    const array = [];
-    const descSortArray = []
+    const array: Array<number> = [];
+    const descSortArray: Array<number> = []
 
     expect(descSortArray).toEqual(sortSelection(array, Direction.Descending)[0])
 })
