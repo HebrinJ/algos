@@ -20,11 +20,9 @@ export const StringComponent: React.FC = () => {
   const frameCollection = useRef<Array<Array<TElementData<string>>>>([]);
 
   useEffect(() => {
-    if(input.length !== 0) {
-      setDisabled(false);
-    } else {
-      setDisabled(true);
-    }
+
+    setDisabled(input.length === 0);
+    
   }, [input])
 
   const onChange = (origin: string) => {

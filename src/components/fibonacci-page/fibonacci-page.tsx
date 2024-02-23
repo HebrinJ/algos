@@ -97,8 +97,7 @@ export const FibonacciPage: React.FC = () => {
           {             
             currentStepArray?.map((item, index) => {
               return <div key={uuidv4()} className={style.circleBox}>
-                <Circle letter={item.toString()} />
-                <p>{index}</p>
+                <Circle letter={item.toString()} index={index}/>
               </div>              
             })
           }

@@ -15,6 +15,27 @@ it('Should selection sort filled array desc', () => {
     expect(descSortArray).toEqual(sortSelection(array, Direction.Descending)[0])
 })
 
+it('Should selection sort array with retry numbers', () => {
+    const array = [4, 1, 4, 3, 4, 3, 2, 5];
+    const descSortArray = [5, 4, 4, 4, 3, 3, 2, 1]
+
+    expect(descSortArray).toEqual(sortSelection(array, Direction.Descending)[0])
+})
+
+it('Should selection sort already sorted array', () => {
+    const array = [4, 3, 2, 1, 0];
+    const descSortArray = [4, 3, 2, 1, 0];
+
+    expect(descSortArray).toEqual(sortSelection(array, Direction.Descending)[0])
+})
+
+it('Should selection sort array negarive numbers', () => {
+    const array = [-1, 3, -4, 2, 0];
+    const descSortArray = [3, 2, 0, -1, -4];
+
+    expect(descSortArray).toEqual(sortSelection(array, Direction.Descending)[0])
+})
+
 it('Should return one element array after selection sort', () => {
     const array = [4];
     const descSortArray = [4]
