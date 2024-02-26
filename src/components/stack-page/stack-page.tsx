@@ -17,9 +17,18 @@ export const StackPage: React.FC = () => {
   const [isChanging, setIsChanging] = useState<boolean>(false);
   const [isLoaderAdd, setIsLoaderAdd] = useState<boolean>(false);
   const [isLoaderRemove, setIsLoaderRemove] = useState<boolean>(false);
+  const [addBtnDisable, setaddBtnDisable] = useState<boolean>(true);
   const [disableBtns, setDisableBtns] = useState<boolean>(false);
 
   const stack = useRef<Stack<any>>(new Stack());
+
+  useEffect(() => {
+    if(input.length !== 0) {
+      setaddBtnDisable(false);
+    } else {
+      setaddBtnDisable(true);
+    }
+  }, [input])
 
   useEffect(() => {
     if(isChanging) {
@@ -81,7 +90,7 @@ export const StackPage: React.FC = () => {
     <SolutionLayout title="Стек">
       <div className={style.controlBox}>
         <Input type='text' maxLength={SHORT_INPUT_LENGTH} isLimitText={true} onChange={event => {onChange(event.currentTarget.value)}} value={input} extraClass={style.input} />
-        <Button text='Добавить' onClick={() => { push(input) }} isLoader={isLoaderAdd} disabled={isChanging}/>
+        <Button text='Добавить' onClick={() => { push(input) }} isLoader={isLoaderAdd} disabled={addBtnDisable}/>
         <Button text='Удалить' onClick={pop} isLoader={isLoaderRemove} disabled={disableBtns}/>
         <Button text='Очистить' extraClass={style.clear} onClick={onClear} disabled={disableBtns}/>
       </div>
@@ -90,24 +99,18 @@ export const StackPage: React.FC = () => {
           currentStack?.map((item, index) => {
             if(index === currentStack.length - 1 && isChanging) {
               return <div key={uuidv4()} className={style.circleBox}>
-                <p className={style.topText}>{'top'}</p>
-                <Circle letter={item} state={ElementStates.Changing}/>
-                <p>{index}</p>
+                <Circle letter={item} state={ElementStates.Changing} index={index} head='top'/>
               </div>              
             }
 
             if(index === currentStack.length - 1) {
               return <div key={uuidv4()} className={style.circleBox}>
-                <p className={style.topText}>{'top'}</p>
-                <Circle letter={item}/>
-                <p>{index}</p>
+                <Circle letter={item} index={index} head='top'/>
               </div> 
             }
 
             return <div key={uuidv4()} className={style.circleBox}>
-              <p className={style.topText}></p>
-              <Circle letter={item}/>
-              <p>{index}</p>
+              <Circle letter={item} index={index}/>
             </div>
           })
         }

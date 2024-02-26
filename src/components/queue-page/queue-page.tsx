@@ -126,18 +126,12 @@ export const QueuePage: React.FC = () => {
                 state = ElementStates.Changing;
               }
               
-              return <div key={uuidv4()} className={style.circleBox}>
-                {isHead ? <p className={style.topText}>head</p> : <p className={style.topText}></p>}
-                <Circle letter={item?.toString()} state={state}/>
-                <p>{index}</p>
-                {isTail ? <p className={style.topText}>tail</p> : <p className={style.topText}></p>} 
+              return <div key={uuidv4()} className={style.circleBox}>                
+                <Circle letter={item?.toString()} state={state} index={index} head={isHead ? 'head' : ''} tail={isTail ? 'tail' : ''}/>
               </div>
             } else {
               return <div key={uuidv4()} className={style.circleBox}>
-                <p className={style.topText}></p>
-                <Circle />
-                <p>{index}</p>
-                <p className={style.topText}></p>
+                <Circle index={index} />
               </div>
             }
           })
